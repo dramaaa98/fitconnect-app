@@ -183,7 +183,10 @@
     content: '';
     position: absolute; inset: 0;
     background: linear-gradient(to top, var(--card-bg) 0%, transparent 40%);
+    z-index: 1; pointer-events: none;
   }
+  .card-avatar .avatar-emoji { position: relative; z-index: 2; }
+  .card-avatar img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
   .gender-badge {
     position: absolute; top: 10px; right: 10px;
     background: rgba(0,0,0,0.5); backdrop-filter: blur(8px);
@@ -710,6 +713,7 @@ let currentTrainer = null;
 const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRpg0pyfjPHZpRAeTFNq_hpNivu5FgvtLUQhxbgQQsv6jTC0cQSUA51TYnmmYMS5wwFsgMeQS9vXZGp/pub?gid=0&single=true&output=csv'; // 🔧 Paste your Sheet CSV URL
 const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxR1hd9_OHxVBHT0mRRVR25cGciME0tycnCmscXNTPu-Y_-256v-Cc-AUh6jdAbmx9S/exec';     // 🔧 Paste your Apps Script URL
 let onboardStep = 1;
+let trainerPhotoData = ''; // moved to global scope
 
 // =============================================
 // SAMPLE DATA (shown when no sheet connected)
@@ -812,8 +816,10 @@ function renderTrainers() {
   grid.innerHTML = filtered.map((t, i) => `
     <div class="trainer-card" onclick="openTrainer(${allTrainers.indexOf(t)})" style="animation-delay:${i*0.05}s">
       <div class="card-avatar">
-        ${t.PhotoUrl ? `<img src="${t.PhotoUrl}" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;" alt="${t.Name}"/>` : (t.Emoji || '💪')}
-        <span class="gender-badge">${t.Gender || '—'}</span>
+        ${t.PhotoUrl
+          ? `<img src="${t.PhotoUrl}" alt="${t.Name}"/>`
+          : `<span class="avatar-emoji">${t.Emoji || '💪'}</span>`}
+        <span class="gender-badge" style="z-index:3;">${t.Gender || '—'}</span>
       </div>
       <div class="card-body">
         <div class="card-name">${t.Name}</div>
@@ -959,15 +965,20 @@ function renderBookings() {
 
 function previewPhoto(input) {
   if (!input.files || !input.files[0]) return;
+  const file = input.files[0];
+  if (file.size > 2 * 1024 * 1024) {
+    alert('Photo too large. Please use an image under 2MB.');
+    return;
+  }
   const reader = new FileReader();
   reader.onload = (e) => {
+    trainerPhotoData = e.target.result;
     document.getElementById('photoPreview').innerHTML = `
-      <img src="${e.target.result}" alt="Preview"/>
-      <div class="upload-hint">Tap to change</div>
+      <img src="${trainerPhotoData}" alt="Preview" style="width:80px;height:80px;border-radius:50%;object-fit:cover;border:3px solid var(--accent);margin-bottom:8px;"/>
+      <div class="upload-hint" style="font-size:0.75rem;color:var(--muted);">Tap to change</div>
     `;
-    document.getElementById('photoUploadBox').dataset.photo = e.target.result;
   };
-  reader.readAsDataURL(input.files[0]);
+  reader.readAsDataURL(file);
 }
 
 function nextStep() {
@@ -1017,7 +1028,7 @@ async function submitTrainer() {
     PriceMonthly: document.getElementById('trPriceMonthly').value.trim(),
     Bio: document.getElementById('trBio').value.trim(),
     Emoji: ['💪','🧘','🏋️','⚡','🤸','🏃'][Math.floor(Math.random()*6)],
-    PhotoUrl: document.getElementById('photoUploadBox')?.dataset?.photo || '',
+    PhotoUrl: trainerPhotoData || '',
     Timestamp: new Date().toISOString()
   };
 
