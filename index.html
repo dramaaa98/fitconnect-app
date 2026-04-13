@@ -229,7 +229,6 @@
     transition: all 0.2s; letter-spacing: 0.3px;
   }
   .book-btn:hover { background: #ff3d10; transform: scale(1.03); }
-  .stars { color: var(--accent2); font-size: 0.75rem; }
 
   /* ---- EMPTY / LOADING ---- */
   .state-box {
@@ -307,13 +306,6 @@
     letter-spacing: 1px; margin-bottom: 10px;
   }
   .modal-section p { color: var(--muted); font-size: 0.9rem; line-height: 1.6; }
-  .review-item {
-    background: var(--surface2); border: 1px solid var(--border);
-    border-radius: 10px; padding: 12px; margin-bottom: 8px;
-  }
-  .review-top { display: flex; justify-content: space-between; margin-bottom: 4px; }
-  .reviewer { font-weight: 600; font-size: 0.85rem; }
-  .review-text { color: var(--muted); font-size: 0.82rem; }
 
   /* ---- BOOKING PANEL ---- */
   .booking-panel {
@@ -395,6 +387,20 @@
   .type-weekly { background: rgba(255,184,0,0.1); color: var(--accent2); border: 1px solid rgba(255,184,0,0.2); }
   .type-monthly { background: rgba(255,92,53,0.1); color: var(--accent); border: 1px solid rgba(255,92,53,0.2); }
   .booking-time { font-size: 0.72rem; color: var(--muted); }
+
+  .booking-actions { display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; }
+  .status-btn {
+    border: none; cursor: pointer; font-family: 'DM Sans', sans-serif;
+    font-weight: 600; font-size: 0.72rem; padding: 6px 12px;
+    border-radius: 8px; transition: all 0.2s; white-space: nowrap;
+  }
+  .confirm-btn { background: rgba(61,255,158,0.12); color: var(--accent3); border: 1px solid rgba(61,255,158,0.25); }
+  .confirm-btn:hover { background: rgba(61,255,158,0.25); }
+  .reject-btn { background: rgba(255,92,53,0.1); color: var(--accent); border: 1px solid rgba(255,92,53,0.2); }
+  .reject-btn:hover { background: rgba(255,92,53,0.2); }
+  .status-Confirmed, .status-confirmed { color: var(--accent3); font-size: 0.78rem; font-weight: 700; }
+  .status-Rejected, .status-rejected { color: var(--accent); font-size: 0.78rem; font-weight: 700; }
+
   .booking-status {
     font-size: 0.72rem; font-weight: 600; color: var(--accent2);
     background: rgba(255,184,0,0.08); border: 1px solid rgba(255,184,0,0.2);
@@ -466,17 +472,6 @@
   }
   .submit-btn:hover { background: #ff3d10; transform: scale(1.01); }
   .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
-  .google-form-note {
-    background: rgba(61,255,158,0.06);
-    border: 1px solid rgba(61,255,158,0.15);
-    border-radius: 14px; padding: 16px 18px; margin-top: 20px;
-    display: flex; gap: 12px; align-items: flex-start;
-  }
-  .note-icon { font-size: 1.4rem; flex-shrink: 0; }
-  .note-text h5 { font-family: 'Syne', sans-serif; font-size: 0.9rem; margin-bottom: 4px; }
-  .note-text p { color: var(--muted); font-size: 0.8rem; line-height: 1.5; }
-  .note-text a { color: var(--accent3); text-decoration: none; font-weight: 600; }
-  .note-text a:hover { text-decoration: underline; }
   .success-box {
     text-align: center; padding: 40px 20px;
   }
@@ -509,6 +504,19 @@
     padding: 2px 8px; border-radius: 50px;
     margin-left: 6px;
   }
+
+  .photo-upload-box {
+    border: 2px dashed var(--border);
+    border-radius: 12px; padding: 24px;
+    text-align: center; cursor: pointer;
+    transition: all 0.2s; background: var(--surface2);
+  }
+  .photo-upload-box:hover { border-color: var(--accent); background: rgba(255,92,53,0.05); }
+  .upload-icon { font-size: 2rem; margin-bottom: 6px; }
+  .upload-text { font-weight: 600; font-size: 0.9rem; margin-bottom: 2px; }
+  .upload-hint { font-size: 0.75rem; color: var(--muted); }
+  .photo-preview img { width: 80px; height: 80px; border-radius: 50%; object-fit: cover; border: 3px solid var(--accent); margin-bottom: 8px; }
+
   @media (max-width: 500px) {
     .modal-grid { grid-template-columns: 1fr 1fr; }
     .booking-options { grid-template-columns: 1fr 1fr 1fr; }
@@ -628,6 +636,17 @@
           <div class="form-group"><label>City *</label><input type="text" id="trCity" value="Ghaziabad" readonly style="opacity:0.6;cursor:not-allowed;"/></div>
         </div>
         <div class="form-group"><label>Specialization *</label><input type="text" id="trSpec" placeholder="Weight Loss, Yoga, CrossFit…"/></div>
+        <div class="form-group">
+          <label>Profile Photo</label>
+          <div class="photo-upload-box" id="photoUploadBox" onclick="document.getElementById('trPhoto').click()">
+            <div class="photo-preview" id="photoPreview">
+              <div class="upload-icon">📷</div>
+              <div class="upload-text">Tap to upload photo</div>
+              <div class="upload-hint">JPG or PNG, max 2MB</div>
+            </div>
+          </div>
+          <input type="file" id="trPhoto" accept="image/*" style="display:none" onchange="previewPhoto(this)"/>
+        </div>
         <button class="submit-btn" onclick="nextStep()">Continue →</button>
       </div>
 
@@ -655,15 +674,8 @@
         </div>
       </div>
     </div>
-
-    <div class="google-form-note">
-      <div class="note-icon">📊</div>
-      <div class="note-text">
-        <h5>Google Sheets Integration</h5>
-        <p>This form submits directly to your Google Sheet via Apps Script. Profiles appear in the app automatically after the sheet refreshes.</p>
-      </div>
-    </div>
   </div>
+</div>
 </div>
 
 <!-- ============================================================
@@ -676,7 +688,6 @@
     <div class="modal-header" id="modalHeader"></div>
     <div class="modal-grid" id="modalGrid"></div>
     <div class="modal-section" id="modalBio"></div>
-    <div class="modal-section" id="modalReviews"></div>
     <div class="booking-panel">
       <h4>Book a Session</h4>
       <div class="booking-options" id="bookingOptions"></div>
@@ -704,12 +715,12 @@ let onboardStep = 1;
 // SAMPLE DATA (shown when no sheet connected)
 // =============================================
 const sampleTrainers = [
-  { Name:'Arjun Kapoor', Phone:'919876543210', City:'Ghaziabad', Gender:'Male', Specialization:'CrossFit & HIIT', Goals:'Weight Loss,Endurance,Strength', Experience:'5', Price:'900', PriceWeekly:'3500', PriceMonthly:'12000', Bio:'NSCA certified trainer with 5 years of experience helping clients achieve peak fitness through data-driven training plans.', Emoji:'💪', Rating:4.8, Reviews:[{name:'Priya S.',stars:5,text:'Arjun transformed my fitness in just 2 months!'},{name:'Rohit M.',stars:4,text:'Very professional and punctual. Highly recommend.'}] },
-  { Name:'Priya Nair', Phone:'919823456789', City:'Ghaziabad', Gender:'Female', Specialization:'Yoga & Mindfulness', Goals:'Flexibility,Stress Relief,Weight Loss', Experience:'7', Price:'700', PriceWeekly:'2800', PriceMonthly:'9000', Bio:'500-hour certified yoga instructor specializing in Vinyasa and Yin yoga. I help clients find balance in body and mind.', Emoji:'🧘', Rating:4.9, Reviews:[{name:'Anjali K.',stars:5,text:'Best yoga instructor I\'ve ever had. So calming.'},{name:'Dev P.',stars:5,text:'Fixed my back pain in 3 weeks!'}] },
-  { Name:'Sameer Khan', Phone:'918765432100', City:'Ghaziabad', Gender:'Male', Specialization:'Strength & Powerlifting', Goals:'Muscle Gain,Strength,Body Recomposition', Experience:'4', Price:'1100', PriceWeekly:'4200', PriceMonthly:'14000', Bio:'IPF affiliated powerlifting coach. I specialize in building raw strength through progressive overload.', Emoji:'🏋️', Rating:4.7, Reviews:[{name:'Vikram R.',stars:5,text:'Added 40kg to my deadlift in 3 months!'},{name:'Neha S.',stars:4,text:'Very knowledgeable. Programs are challenging but effective.'}] },
-  { Name:'Divya Menon', Phone:'917654321098', City:'Ghaziabad', Gender:'Female', Specialization:'Nutrition & Fat Loss', Goals:'Weight Loss,Toning,Healthy Lifestyle', Experience:'6', Price:'800', PriceWeekly:'3000', PriceMonthly:'9500', Bio:'Sports nutritionist + personal trainer combo. I help you lose fat sustainably without crash diets.', Emoji:'🥗', Rating:4.8, Reviews:[{name:'Sanjay T.',stars:5,text:'Lost 12kg in 4 months with Divya\'s guidance!'},{name:'Meera L.',stars:4,text:'Practical meal plans that actually work.'}] },
-  { Name:'Rahul Verma', Phone:'916543210987', City:'Ghaziabad', Gender:'Male', Specialization:'Functional Training', Goals:'Agility,Endurance,Sport Performance', Experience:'3', Price:'650', PriceWeekly:'2500', PriceMonthly:'8000', Bio:'Ex-athlete turned trainer. I train you for real-world performance, not just gym looks.', Emoji:'⚡', Rating:4.6, Reviews:[{name:'Aditya B.',stars:5,text:'Great energy and motivation!'},{name:'Pooja M.',stars:4,text:'Super functional workouts, love the variety.'}] },
-  { Name:'Shreya Joshi', Phone:'915432109876', City:'Ghaziabad', Gender:'Female', Specialization:'Pilates & Core Training', Goals:'Core Strength,Posture,Rehabilitation', Experience:'5', Price:'850', PriceWeekly:'3200', PriceMonthly:'10500', Bio:'Stott Pilates certified. Specializing in post-injury recovery and core strengthening for all fitness levels.', Emoji:'🤸', Rating:4.9, Reviews:[{name:'Kavita R.',stars:5,text:'Healed my sciatica! Incredible instructor.'},{name:'Manish S.',stars:5,text:'Best Pilates class in Ghaziabad, period.'}] },
+  { Name:'Arjun Kapoor', Phone:'919876543210', City:'Ghaziabad', Gender:'Male', Specialization:'CrossFit & HIIT', Goals:'Weight Loss,Endurance,Strength', Experience:'5', Price:'900', PriceWeekly:'3500', PriceMonthly:'12000', Bio:'NSCA certified trainer with 5 years of experience helping clients achieve peak fitness through data-driven training plans.', Emoji:'💪' },
+  { Name:'Priya Nair', Phone:'919823456789', City:'Ghaziabad', Gender:'Female', Specialization:'Yoga & Mindfulness', Goals:'Flexibility,Stress Relief,Weight Loss', Experience:'7', Price:'700', PriceWeekly:'2800', PriceMonthly:'9000', Bio:'500-hour certified yoga instructor specializing in Vinyasa and Yin yoga. I help clients find balance in body and mind.', Emoji:'🧘' },
+  { Name:'Sameer Khan', Phone:'918765432100', City:'Ghaziabad', Gender:'Male', Specialization:'Strength & Powerlifting', Goals:'Muscle Gain,Strength,Body Recomposition', Experience:'4', Price:'1100', PriceWeekly:'4200', PriceMonthly:'14000', Bio:'IPF affiliated powerlifting coach. I specialize in building raw strength through progressive overload.', Emoji:'🏋️' },
+  { Name:'Divya Menon', Phone:'917654321098', City:'Ghaziabad', Gender:'Female', Specialization:'Nutrition & Fat Loss', Goals:'Weight Loss,Toning,Healthy Lifestyle', Experience:'6', Price:'800', PriceWeekly:'3000', PriceMonthly:'9500', Bio:'Sports nutritionist + personal trainer combo. I help you lose fat sustainably without crash diets.', Emoji:'🥗' },
+  { Name:'Rahul Verma', Phone:'916543210987', City:'Ghaziabad', Gender:'Male', Specialization:'Functional Training', Goals:'Agility,Endurance,Sport Performance', Experience:'3', Price:'650', PriceWeekly:'2500', PriceMonthly:'8000', Bio:'Ex-athlete turned trainer. I train you for real-world performance, not just gym looks.', Emoji:'⚡' },
+  { Name:'Shreya Joshi', Phone:'915432109876', City:'Ghaziabad', Gender:'Female', Specialization:'Pilates & Core Training', Goals:'Core Strength,Posture,Rehabilitation', Experience:'5', Price:'850', PriceWeekly:'3200', PriceMonthly:'10500', Bio:'Stott Pilates certified. Specializing in post-injury recovery and core strengthening for all fitness levels.', Emoji:'🤸' },
 ];
 
 // =============================================
@@ -758,7 +769,6 @@ function parseCSV(text) {
     const vals = line.match(/(".*?"|[^,]+|(?<=,)(?=,)|^(?=,)|(?<=,)$)/g) || [];
     const obj = {};
     headers.forEach((h,i) => { obj[h] = (vals[i] || '').replace(/"/g,'').trim(); });
-    obj.Rating = obj.Rating ? parseFloat(obj.Rating) : (4 + Math.random());
     obj.Reviews = obj.Reviews ? [] : [];
     obj.Emoji = obj.Emoji || ['💪','🧘','🏋️','⚡','🤸','🏃'][Math.floor(Math.random()*6)];
     return obj;
@@ -802,7 +812,7 @@ function renderTrainers() {
   grid.innerHTML = filtered.map((t, i) => `
     <div class="trainer-card" onclick="openTrainer(${allTrainers.indexOf(t)})" style="animation-delay:${i*0.05}s">
       <div class="card-avatar">
-        ${t.Emoji || '💪'}
+        ${t.PhotoUrl ? `<img src="${t.PhotoUrl}" style="width:100%;height:100%;object-fit:cover;position:absolute;inset:0;" alt="${t.Name}"/>` : (t.Emoji || '💪')}
         <span class="gender-badge">${t.Gender || '—'}</span>
       </div>
       <div class="card-body">
@@ -831,13 +841,9 @@ function openTrainer(idx) {
   selectedBookingType = 'session';
 
   document.getElementById('modalHeader').innerHTML = `
-    <div class="modal-avatar">${t.Emoji || '💪'}</div>
+    <div class="modal-avatar" style="overflow:hidden;">${t.PhotoUrl ? `<img src="${t.PhotoUrl}" style="width:100%;height:100%;object-fit:cover;border-radius:50%;" alt="${t.Name}"/>` : (t.Emoji || '💪')}</div>
     <div class="modal-name">${t.Name}</div>
     <div class="modal-spec">${t.Specialization}</div>
-    <div style="margin-bottom:8px;">
-      <span class="stars">${'★'.repeat(Math.round(t.Rating||4.5))}${'☆'.repeat(5-Math.round(t.Rating||4.5))}</span>
-      <span style="font-size:0.8rem;color:var(--muted);margin-left:6px;">${(t.Rating||4.5).toFixed(1)} · ${t.City}</span>
-    </div>
   `;
 
   document.getElementById('modalGrid').innerHTML = `
@@ -848,20 +854,6 @@ function openTrainer(idx) {
   `;
 
   document.getElementById('modalBio').innerHTML = t.Bio ? `<h4>About</h4><p>${t.Bio}</p>` : '';
-
-  const reviews = t.Reviews && t.Reviews.length > 0 ? t.Reviews : [];
-  document.getElementById('modalReviews').innerHTML = reviews.length > 0 ? `
-    <h4>Reviews</h4>
-    ${reviews.map(r => `
-      <div class="review-item">
-        <div class="review-top">
-          <span class="reviewer">${r.name}</span>
-          <span class="stars">${'★'.repeat(r.stars)}</span>
-        </div>
-        <div class="review-text">${r.text}</div>
-      </div>
-    `).join('')}
-  ` : '';
 
   renderBookingOptions(t);
 
@@ -925,6 +917,13 @@ function saveBooking(trainer, type) {
   localStorage.setItem('fitconnect_bookings', JSON.stringify(bookings));
 }
 
+
+function updateBooking(idx, status) {
+  bookings[idx].status = status;
+  localStorage.setItem('fitconnect_bookings', JSON.stringify(bookings));
+  renderBookings();
+}
+
 function renderBookings() {
   const el = document.getElementById('bookingsList');
   if (bookings.length === 0) {
@@ -936,7 +935,7 @@ function renderBookings() {
       </div>`;
     return;
   }
-  el.innerHTML = bookings.map(b => `
+  el.innerHTML = bookings.map((b, i) => `
     <div class="booking-card">
       <div class="booking-avi">${b.emoji}</div>
       <div class="booking-info">
@@ -944,7 +943,12 @@ function renderBookings() {
         <span class="booking-type type-${b.type}">${b.type === 'session' ? '1 Session' : b.type === 'weekly' ? 'Weekly' : 'Monthly'}</span>
         <div class="booking-time">📅 ${b.time}</div>
       </div>
-      <div class="booking-status">${b.status}</div>
+      <div class="booking-actions">
+        ${b.status === 'Pending' ? `
+          <button class="status-btn confirm-btn" onclick="updateBooking(${i},'Confirmed')">✓ Confirm</button>
+          <button class="status-btn reject-btn" onclick="updateBooking(${i},'Rejected')">✕ Reject</button>
+        ` : `<div class="booking-status status-${b.status.toLowerCase()}">${b.status === 'Confirmed' ? '✓ Confirmed' : '✕ Rejected'}</div>`}
+      </div>
     </div>
   `).join('');
 }
@@ -952,6 +956,20 @@ function renderBookings() {
 // =============================================
 // ONBOARDING FORM
 // =============================================
+
+function previewPhoto(input) {
+  if (!input.files || !input.files[0]) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    document.getElementById('photoPreview').innerHTML = `
+      <img src="${e.target.result}" alt="Preview"/>
+      <div class="upload-hint">Tap to change</div>
+    `;
+    document.getElementById('photoUploadBox').dataset.photo = e.target.result;
+  };
+  reader.readAsDataURL(input.files[0]);
+}
+
 function nextStep() {
   const name = document.getElementById('trName').value.trim();
   const phone = document.getElementById('trPhone').value.trim();
@@ -999,6 +1017,7 @@ async function submitTrainer() {
     PriceMonthly: document.getElementById('trPriceMonthly').value.trim(),
     Bio: document.getElementById('trBio').value.trim(),
     Emoji: ['💪','🧘','🏋️','⚡','🤸','🏃'][Math.floor(Math.random()*6)],
+    PhotoUrl: document.getElementById('photoUploadBox')?.dataset?.photo || '',
     Timestamp: new Date().toISOString()
   };
 
