@@ -527,9 +527,9 @@
     Fit<span>Connect</span>
   </div>
   <div class="tabbar">
-    <button class="tab-btn active" onclick="showPage('home')">🏠 Home</button>
-    <button class="tab-btn" onclick="showPage('bookings')">📋 Bookings</button>
-    <button class="tab-btn" onclick="showPage('onboard')">🧑‍🏫 Trainers</button>
+    <button class="tab-btn active" onclick="showPage('home')">Home</button>
+    <button class="tab-btn" onclick="showPage('bookings')">Bookings</button>
+    <button class="tab-btn" onclick="showPage('onboard')">Trainers</button>
   </div>
 </div>
 
@@ -538,7 +538,7 @@
      ============================================================ -->
 <div class="page active" id="page-home">
   <div class="hero">
-    <div class="hero-tag">🔥 Find. Book. Train.</div>
+    <div class="hero-tag">Find. Book. Train.</div>
     <h1>Your personal trainer,<br/><em>on demand</em></h1>
     <p>Browse certified trainers nearby. Book a session in seconds via WhatsApp.</p>
   </div>
@@ -601,7 +601,7 @@
      ============================================================ -->
 <div class="page" id="page-onboard">
   <div class="onboard-wrap">
-    <div class="onboard-tag">🧑‍🏫 For Trainers</div>
+    <div class="onboard-tag"> For Trainers</div>
     <h2>Join as a Trainer</h2>
     <p>Fill in your profile below. Your listing will appear on the home page automatically once the sheet is synced.</p>
 
@@ -696,8 +696,8 @@ let allTrainers = [];
 let bookings = JSON.parse(localStorage.getItem('fitconnect_bookings') || '[]');
 let selectedBookingType = 'session';
 let currentTrainer = null;
-const SHEET_URL = 'YOUR_GOOGLE_SHEET_CSV_URL_HERE'; // 🔧 Paste your Sheet CSV URL
-const SCRIPT_URL = 'YOUR_APPS_SCRIPT_URL_HERE';     // 🔧 Paste your Apps Script URL
+const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRpg0pyfjPHZpRAeTFNq_hpNivu5FgvtLUQhxbgQQsv6jTC0cQSUA51TYnmmYMS5wwFsgMeQS9vXZGp/pubhtml?gid=0&single=true'; // 🔧 Paste your Sheet CSV URL
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxR1hd9_OHxVBHT0mRRVR25cGciME0tycnCmscXNTPu-Y_-256v-Cc-AUh6jdAbmx9S/exec';     // 🔧 Paste your Apps Script URL
 let onboardStep = 1;
 
 // =============================================
