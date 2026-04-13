@@ -1,0 +1,1036 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>FitConnect — Find Your Trainer</title>
+<link href="https://fonts.googleapis.com/css2?family=Clash+Display:wght@400;500;600;700&family=Syne:wght@400;500;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #13131a;
+    --surface2: #1c1c28;
+    --border: rgba(255,255,255,0.07);
+    --accent: #ff5c35;
+    --accent2: #ffb800;
+    --accent3: #3dff9e;
+    --text: #f0f0f5;
+    --muted: #7a7a9a;
+    --card-bg: #16161f;
+    --radius: 16px;
+  }
+  *,*::before,*::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  /* ---- NOISE TEXTURE ---- */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none; z-index: 999; opacity: 0.35;
+  }
+  /* ---- TOP NAV ---- */
+  .topbar {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(10,10,15,0.85);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 20px;
+    display: flex; align-items: center; justify-content: space-between;
+    height: 60px;
+  }
+  .logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800; font-size: 1.3rem;
+    letter-spacing: -0.5px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .logo span { color: var(--accent); }
+  .logo-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); display: inline-block; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.5;transform:scale(1.4)} }
+
+  /* ---- TAB BAR ---- */
+  .tabbar {
+    display: flex; gap: 4px;
+    background: var(--surface);
+    border-radius: 50px;
+    padding: 4px;
+  }
+  .tab-btn {
+    background: none; border: none; cursor: pointer;
+    color: var(--muted); font-family: 'DM Sans', sans-serif;
+    font-size: 0.8rem; font-weight: 500;
+    padding: 6px 14px; border-radius: 50px;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .tab-btn.active {
+    background: var(--accent);
+    color: #fff;
+    font-weight: 600;
+  }
+  .tab-btn:hover:not(.active) { color: var(--text); }
+
+  /* ---- PAGES ---- */
+  .page { display: none; animation: fadeUp 0.35s ease; }
+  .page.active { display: block; }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+
+  /* ---- HERO SECTION ---- */
+  .hero {
+    padding: 48px 20px 32px;
+    max-width: 700px; margin: 0 auto;
+    text-align: center;
+  }
+  .hero-tag {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(255,92,53,0.1);
+    border: 1px solid rgba(255,92,53,0.3);
+    color: var(--accent); font-size: 0.75rem; font-weight: 600;
+    padding: 4px 12px; border-radius: 50px;
+    margin-bottom: 16px; letter-spacing: 1px; text-transform: uppercase;
+  }
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(2rem, 5vw, 3.2rem);
+    font-weight: 800; line-height: 1.1;
+    letter-spacing: -1.5px; margin-bottom: 12px;
+  }
+  .hero h1 em { color: var(--accent); font-style: normal; }
+  .hero p { color: var(--muted); font-size: 1rem; line-height: 1.6; }
+
+  /* ---- FILTERS ---- */
+  .filters-wrap {
+    padding: 0 16px 20px;
+    max-width: 1100px; margin: 0 auto;
+  }
+  .filter-scroll {
+    display: flex; gap: 10px; overflow-x: auto; padding-bottom: 8px;
+    scrollbar-width: none;
+  }
+  .filter-scroll::-webkit-scrollbar { display: none; }
+  .filter-group { flex-shrink: 0; }
+  .filter-group label { font-size: 0.7rem; color: var(--muted); display: block; margin-bottom: 4px; text-transform: uppercase; letter-spacing: .8px; }
+  select {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 0.82rem;
+    padding: 8px 32px 8px 12px;
+    border-radius: 10px;
+    cursor: pointer; outline: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%237a7a9a' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    min-width: 130px;
+    transition: border-color 0.2s;
+  }
+  select:focus { border-color: var(--accent); }
+  .search-bar {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px; padding: 10px 14px;
+    margin: 0 16px 16px; max-width: calc(1100px - 32px);
+    margin-left: auto; margin-right: auto;
+    transition: border-color 0.2s;
+  }
+  .search-bar:focus-within { border-color: var(--accent); }
+  .search-bar svg { color: var(--muted); flex-shrink: 0; }
+  .search-bar input {
+    background: none; border: none; outline: none;
+    color: var(--text); font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem; width: 100%;
+  }
+  .search-bar input::placeholder { color: var(--muted); }
+
+  /* ---- TRAINERS GRID ---- */
+  .trainers-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 16px; padding: 0 16px 100px;
+    max-width: 1100px; margin: 0 auto;
+  }
+  .trainer-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+    cursor: pointer;
+    transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s;
+    position: relative;
+  }
+  .trainer-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(255,92,53,0.3);
+    box-shadow: 0 12px 40px rgba(255,92,53,0.12);
+  }
+  .card-avatar {
+    width: 100%; aspect-ratio: 4/3;
+    background: linear-gradient(135deg, var(--surface2), #1e1e2e);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 4rem; position: relative; overflow: hidden;
+  }
+  .card-avatar::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(to top, var(--card-bg) 0%, transparent 40%);
+  }
+  .gender-badge {
+    position: absolute; top: 10px; right: 10px;
+    background: rgba(0,0,0,0.5); backdrop-filter: blur(8px);
+    border: 1px solid var(--border);
+    padding: 3px 10px; border-radius: 50px;
+    font-size: 0.7rem; font-weight: 600; color: var(--text);
+    z-index: 1;
+  }
+  .card-body { padding: 14px 16px 16px; }
+  .card-name {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700; font-size: 1.05rem;
+    margin-bottom: 2px;
+  }
+  .card-spec {
+    color: var(--accent); font-size: 0.78rem;
+    font-weight: 500; margin-bottom: 10px;
+  }
+  .card-meta {
+    display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 12px;
+  }
+  .meta-pill {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    padding: 3px 10px; border-radius: 50px;
+    font-size: 0.72rem; color: var(--muted);
+    display: flex; align-items: center; gap: 4px;
+  }
+  .card-footer {
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .price {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700; font-size: 1.15rem;
+  }
+  .price small { font-size: 0.65rem; color: var(--muted); font-family: 'DM Sans', sans-serif; font-weight: 400; }
+  .book-btn {
+    background: var(--accent);
+    color: #fff; border: none; cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 600; font-size: 0.8rem;
+    padding: 8px 16px; border-radius: 10px;
+    transition: all 0.2s; letter-spacing: 0.3px;
+  }
+  .book-btn:hover { background: #ff3d10; transform: scale(1.03); }
+  .stars { color: var(--accent2); font-size: 0.75rem; }
+
+  /* ---- EMPTY / LOADING ---- */
+  .state-box {
+    text-align: center; padding: 80px 20px;
+    color: var(--muted); grid-column: 1/-1;
+  }
+  .state-box .icon { font-size: 3rem; margin-bottom: 12px; }
+  .state-box h3 { color: var(--text); font-family: 'Syne', sans-serif; margin-bottom: 6px; }
+  .spinner {
+    width: 36px; height: 36px;
+    border: 3px solid var(--surface2);
+    border-top-color: var(--accent);
+    border-radius: 50%;
+    animation: spin 0.8s linear infinite;
+    margin: 0 auto 16px;
+  }
+  @keyframes spin { to{transform:rotate(360deg)} }
+
+  /* ---- MODAL OVERLAY ---- */
+  .overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.75);
+    backdrop-filter: blur(8px);
+    z-index: 200; display: flex; align-items: flex-end;
+    animation: fadeIn 0.2s ease;
+  }
+  @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+  .overlay.hidden { display: none; }
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 24px 24px 0 0;
+    width: 100%; max-width: 600px;
+    margin: 0 auto;
+    max-height: 92vh; overflow-y: auto;
+    animation: slideUp 0.3s cubic-bezier(.16,1,.3,1);
+    padding-bottom: 40px;
+  }
+  @keyframes slideUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
+  .modal-handle {
+    width: 40px; height: 4px; border-radius: 2px;
+    background: var(--border); margin: 12px auto 0;
+  }
+  .modal-header { padding: 20px 20px 0; }
+  .modal-avatar {
+    width: 80px; height: 80px;
+    background: linear-gradient(135deg, var(--surface2), #252535);
+    border-radius: 50%; display: flex; align-items: center;
+    justify-content: center; font-size: 2.5rem;
+    border: 3px solid var(--border);
+    margin-bottom: 12px;
+  }
+  .modal-name {
+    font-family: 'Syne', sans-serif; font-weight: 800;
+    font-size: 1.6rem; letter-spacing: -0.5px;
+    margin-bottom: 2px;
+  }
+  .modal-spec { color: var(--accent); font-weight: 500; margin-bottom: 16px; }
+  .modal-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 10px; padding: 0 20px; margin-bottom: 16px;
+  }
+  .info-tile {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px; padding: 12px;
+  }
+  .info-tile .label { font-size: 0.7rem; color: var(--muted); text-transform: uppercase; letter-spacing: .8px; margin-bottom: 4px; }
+  .info-tile .val { font-weight: 600; font-size: 0.95rem; }
+  .modal-section { padding: 0 20px; margin-bottom: 16px; }
+  .modal-section h4 {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.85rem; font-weight: 700;
+    color: var(--muted); text-transform: uppercase;
+    letter-spacing: 1px; margin-bottom: 10px;
+  }
+  .modal-section p { color: var(--muted); font-size: 0.9rem; line-height: 1.6; }
+  .review-item {
+    background: var(--surface2); border: 1px solid var(--border);
+    border-radius: 10px; padding: 12px; margin-bottom: 8px;
+  }
+  .review-top { display: flex; justify-content: space-between; margin-bottom: 4px; }
+  .reviewer { font-weight: 600; font-size: 0.85rem; }
+  .review-text { color: var(--muted); font-size: 0.82rem; }
+
+  /* ---- BOOKING PANEL ---- */
+  .booking-panel {
+    padding: 0 20px;
+  }
+  .booking-panel h4 {
+    font-family: 'Syne', sans-serif; font-weight: 700;
+    font-size: 0.85rem; color: var(--muted);
+    text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px;
+  }
+  .booking-options { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-bottom: 16px; }
+  .booking-opt {
+    background: var(--surface2);
+    border: 2px solid var(--border);
+    border-radius: 12px; padding: 12px 8px;
+    text-align: center; cursor: pointer;
+    transition: all 0.2s;
+  }
+  .booking-opt.selected {
+    border-color: var(--accent);
+    background: rgba(255,92,53,0.08);
+  }
+  .booking-opt .opt-icon { font-size: 1.5rem; margin-bottom: 4px; }
+  .booking-opt .opt-label { font-size: 0.78rem; font-weight: 600; }
+  .booking-opt .opt-price { font-size: 0.7rem; color: var(--muted); margin-top: 2px; }
+  .whatsapp-btn {
+    width: 100%;
+    background: #25D366;
+    color: #fff; border: none; cursor: pointer;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 700; font-size: 1rem;
+    padding: 16px; border-radius: 14px;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    transition: all 0.2s; letter-spacing: 0.2px;
+    margin-top: 4px;
+  }
+  .whatsapp-btn:hover { background: #1da851; transform: scale(1.01); }
+  .close-btn {
+    position: absolute; top: 16px; right: 16px;
+    background: var(--surface2); border: 1px solid var(--border);
+    color: var(--muted); width: 32px; height: 32px;
+    border-radius: 50%; cursor: pointer; font-size: 1rem;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s; z-index: 10;
+  }
+  .close-btn:hover { color: var(--text); border-color: var(--text); }
+
+  /* ---- BOOKINGS PAGE ---- */
+  .page-header {
+    padding: 32px 20px 20px;
+    font-family: 'Syne', sans-serif; font-weight: 800;
+    font-size: 1.8rem; letter-spacing: -0.5px;
+  }
+  .page-header span { color: var(--accent); }
+  .empty-bookings {
+    text-align: center; padding: 60px 20px;
+    color: var(--muted);
+  }
+  .empty-bookings .big-icon { font-size: 4rem; margin-bottom: 16px; }
+  .empty-bookings h3 { font-family: 'Syne', sans-serif; color: var(--text); margin-bottom: 8px; }
+  .empty-bookings p { font-size: 0.9rem; line-height: 1.6; }
+  .bookings-list { padding: 0 16px 100px; }
+  .booking-card {
+    background: var(--card-bg); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 16px;
+    margin-bottom: 10px;
+    display: flex; align-items: center; gap: 14px;
+    animation: fadeUp 0.3s ease;
+  }
+  .booking-avi { font-size: 2.2rem; }
+  .booking-info { flex: 1; }
+  .booking-name { font-family: 'Syne', sans-serif; font-weight: 700; margin-bottom: 2px; }
+  .booking-type {
+    font-size: 0.75rem; font-weight: 600;
+    padding: 2px 10px; border-radius: 50px;
+    display: inline-block; margin-bottom: 4px;
+  }
+  .type-session { background: rgba(61,255,158,0.1); color: var(--accent3); border: 1px solid rgba(61,255,158,0.2); }
+  .type-weekly { background: rgba(255,184,0,0.1); color: var(--accent2); border: 1px solid rgba(255,184,0,0.2); }
+  .type-monthly { background: rgba(255,92,53,0.1); color: var(--accent); border: 1px solid rgba(255,92,53,0.2); }
+  .booking-time { font-size: 0.72rem; color: var(--muted); }
+  .booking-status {
+    font-size: 0.72rem; font-weight: 600; color: var(--accent2);
+    background: rgba(255,184,0,0.08); border: 1px solid rgba(255,184,0,0.2);
+    padding: 4px 10px; border-radius: 50px;
+  }
+
+  /* ---- ONBOARDING PAGE ---- */
+  .onboard-wrap { padding: 24px 20px 100px; max-width: 600px; margin: 0 auto; }
+  .onboard-tag {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: rgba(61,255,158,0.08); border: 1px solid rgba(61,255,158,0.2);
+    color: var(--accent3); font-size: 0.72rem; font-weight: 600;
+    padding: 4px 12px; border-radius: 50px; margin-bottom: 12px;
+    letter-spacing: .8px; text-transform: uppercase;
+  }
+  .onboard-wrap h2 {
+    font-family: 'Syne', sans-serif; font-size: 1.9rem;
+    font-weight: 800; letter-spacing: -0.5px; margin-bottom: 8px;
+  }
+  .onboard-wrap > p { color: var(--muted); font-size: 0.9rem; line-height: 1.6; margin-bottom: 24px; }
+  .step-flow {
+    display: flex; gap: 0; margin-bottom: 28px; position: relative;
+  }
+  .step-flow::before {
+    content: '';
+    position: absolute; top: 16px; left: 24px; right: 24px;
+    height: 2px; background: var(--surface2); z-index: 0;
+  }
+  .step {
+    flex: 1; text-align: center; position: relative; z-index: 1;
+  }
+  .step-circle {
+    width: 32px; height: 32px; border-radius: 50%;
+    background: var(--surface2); border: 2px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.78rem; font-weight: 700; margin: 0 auto 6px;
+    transition: all 0.3s;
+  }
+  .step.done .step-circle { background: var(--accent3); border-color: var(--accent3); color: #000; }
+  .step.active .step-circle { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .step-label { font-size: 0.68rem; color: var(--muted); }
+  .step.active .step-label { color: var(--text); }
+  .form-card {
+    background: var(--card-bg);
+    border: 1px solid var(--border);
+    border-radius: 20px; padding: 24px;
+  }
+  .form-group { margin-bottom: 16px; }
+  .form-group label { display: block; font-size: 0.78rem; font-weight: 600; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: .6px; }
+  .form-group input, .form-group select, .form-group textarea {
+    width: 100%; background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--text); font-family: 'DM Sans', sans-serif;
+    font-size: 0.9rem; padding: 10px 14px;
+    border-radius: 10px; outline: none;
+    transition: border-color 0.2s; resize: vertical;
+    appearance: none;
+  }
+  .form-group textarea { min-height: 80px; }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus { border-color: var(--accent); }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .submit-btn {
+    width: 100%; background: var(--accent);
+    color: #fff; border: none; cursor: pointer;
+    font-family: 'Syne', sans-serif; font-weight: 700;
+    font-size: 1rem; padding: 14px; border-radius: 14px;
+    transition: all 0.2s; margin-top: 4px;
+    letter-spacing: 0.3px;
+  }
+  .submit-btn:hover { background: #ff3d10; transform: scale(1.01); }
+  .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+  .google-form-note {
+    background: rgba(61,255,158,0.06);
+    border: 1px solid rgba(61,255,158,0.15);
+    border-radius: 14px; padding: 16px 18px; margin-top: 20px;
+    display: flex; gap: 12px; align-items: flex-start;
+  }
+  .note-icon { font-size: 1.4rem; flex-shrink: 0; }
+  .note-text h5 { font-family: 'Syne', sans-serif; font-size: 0.9rem; margin-bottom: 4px; }
+  .note-text p { color: var(--muted); font-size: 0.8rem; line-height: 1.5; }
+  .note-text a { color: var(--accent3); text-decoration: none; font-weight: 600; }
+  .note-text a:hover { text-decoration: underline; }
+  .success-box {
+    text-align: center; padding: 40px 20px;
+  }
+  .success-box .big { font-size: 4rem; margin-bottom: 16px; }
+  .success-box h3 { font-family: 'Syne', sans-serif; font-size: 1.5rem; margin-bottom: 8px; }
+  .success-box p { color: var(--muted); font-size: 0.9rem; }
+
+  /* ---- CONFIG PANEL ---- */
+  .btn-secondary {
+    flex: 1; background: var(--surface2);
+    border: 1px solid var(--border); color: var(--muted);
+    cursor: pointer; font-family: 'DM Sans', sans-serif;
+    font-weight: 600; font-size: 0.85rem;
+    padding: 10px; border-radius: 10px; transition: all 0.2s;
+  }
+  .btn-secondary:hover { border-color: var(--text); color: var(--text); }
+  .btn-primary {
+    flex: 2; background: var(--accent);
+    border: none; color: #fff;
+    cursor: pointer; font-family: 'Syne', sans-serif;
+    font-weight: 700; font-size: 0.9rem;
+    padding: 10px; border-radius: 10px; transition: all 0.2s;
+  }
+  .btn-primary:hover { background: #ff3d10; }
+
+  /* ---- MISC ---- */
+  .count-badge {
+    background: rgba(255,92,53,0.15); color: var(--accent);
+    font-size: 0.72rem; font-weight: 700;
+    padding: 2px 8px; border-radius: 50px;
+    margin-left: 6px;
+  }
+  @media (max-width: 500px) {
+    .modal-grid { grid-template-columns: 1fr 1fr; }
+    .booking-options { grid-template-columns: 1fr 1fr 1fr; }
+    .form-row { grid-template-columns: 1fr; }
+    .tabbar { gap: 2px; }
+    .tab-btn { padding: 6px 10px; font-size: 0.75rem; }
+  }
+</style>
+</head>
+<body>
+
+<!-- TOP BAR -->
+<div class="topbar">
+  <div class="logo">
+    <span class="logo-dot"></span>
+    Fit<span>Connect</span>
+  </div>
+  <div class="tabbar">
+    <button class="tab-btn active" onclick="showPage('home')">Home</button>
+    <button class="tab-btn" onclick="showPage('bookings')">Bookings</button>
+    <button class="tab-btn" onclick="showPage('onboard')">Trainers</button>
+  </div>
+</div>
+
+<!-- ============================================================
+     HOME PAGE
+     ============================================================ -->
+<div class="page active" id="page-home">
+  <div class="hero">
+    <div class="hero-tag">Find. Book. Train.</div>
+    <h1>Your personal trainer,<br/><em>on demand</em></h1>
+    <p>Browse certified trainers nearby. Book a session in seconds via WhatsApp.</p>
+  </div>
+
+  <div class="search-bar" style="margin-bottom:12px;">
+    <svg width="16" height="16" fill="none" viewBox="0 0 24 24"><circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/><path d="m21 21-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    <input type="text" id="searchInput" placeholder="Search by name, goal, location…" oninput="renderTrainers()"/>
+  </div>
+
+  <div class="filters-wrap">
+    <div class="filter-scroll">
+      <div class="filter-group">
+        <label>📍 Location</label>
+        <select id="filterCity" onchange="renderTrainers()"><option value="Ghaziabad">📍 Ghaziabad</option></select>
+      </div>
+      <div class="filter-group">
+        <label>⚧ Gender</label>
+        <select id="filterGender" onchange="renderTrainers()">
+          <option value="">Any Gender</option>
+          <option>Male</option>
+          <option>Female</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label>🎯 Goal</label>
+        <select id="filterGoal" onchange="renderTrainers()"><option value="">Any Goal</option></select>
+      </div>
+      <div class="filter-group">
+        <label>💸 Max Price</label>
+        <select id="filterPrice" onchange="renderTrainers()">
+          <option value="">Any Price</option>
+          <option value="500">Under ₹500</option>
+          <option value="1000">Under ₹1000</option>
+          <option value="2000">Under ₹2000</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="trainers-grid" id="trainersGrid">
+    <div class="state-box">
+      <div class="spinner"></div>
+      <h3>Loading trainers…</h3>
+      <p>Click ⚙️ Setup to connect your Google Sheet</p>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     BOOKINGS PAGE
+     ============================================================ -->
+<div class="page" id="page-bookings">
+  <div class="page-header">My <span>Bookings</span></div>
+  <div id="bookingsList" class="bookings-list"></div>
+</div>
+
+<!-- ============================================================
+     ONBOARDING PAGE
+     ============================================================ -->
+<div class="page" id="page-onboard">
+  <div class="onboard-wrap">
+    <div class="onboard-tag"> For Trainers</div>
+    <h2>Join as a Trainer</h2>
+    <p>Fill in your profile below. Your listing will appear on the home page automatically once the sheet is synced.</p>
+
+    <div class="step-flow" id="stepFlow">
+      <div class="step active" id="step1"><div class="step-circle">1</div><div class="step-label">Profile</div></div>
+      <div class="step" id="step2"><div class="step-circle">2</div><div class="step-label">Details</div></div>
+      <div class="step" id="step3"><div class="step-circle">3</div><div class="step-label">Done</div></div>
+    </div>
+
+    <div class="form-card" id="onboardForm">
+      <!-- Step 1 -->
+      <div id="formStep1">
+        <div class="form-row">
+          <div class="form-group"><label>Full Name *</label><input type="text" id="trName" placeholder="Rahul Sharma"/></div>
+          <div class="form-group"><label>Phone (WhatsApp) *</label><input type="tel" id="trPhone" placeholder="91XXXXXXXXXX"/></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Gender</label>
+            <select id="trGender">
+              <option>Male</option><option>Female</option><option>Other</option>
+            </select>
+          </div>
+          <div class="form-group"><label>City *</label><input type="text" id="trCity" value="Ghaziabad" readonly style="opacity:0.6;cursor:not-allowed;"/></div>
+        </div>
+        <div class="form-group"><label>Specialization *</label><input type="text" id="trSpec" placeholder="Weight Loss, Yoga, CrossFit…"/></div>
+        <button class="submit-btn" onclick="nextStep()">Continue →</button>
+      </div>
+
+      <!-- Step 2 -->
+      <div id="formStep2" style="display:none">
+        <div class="form-row">
+          <div class="form-group"><label>Experience (years) *</label><input type="number" id="trExp" placeholder="3" min="0"/></div>
+          <div class="form-group"><label>Price / Session (₹) *</label><input type="number" id="trPrice" placeholder="800"/></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Weekly Price (₹)</label><input type="number" id="trPriceWeekly" placeholder="3000"/></div>
+          <div class="form-group"><label>Monthly Price (₹)</label><input type="number" id="trPriceMonthly" placeholder="10000"/></div>
+        </div>
+        <div class="form-group">
+          <label>Training Goals (comma separated)</label>
+          <input type="text" id="trGoals" placeholder="Weight Loss, Muscle Gain, Flexibility"/>
+        </div>
+        <div class="form-group">
+          <label>Short Bio</label>
+          <textarea id="trBio" placeholder="Tell clients about your approach, certifications, and what makes you different…"></textarea>
+        </div>
+        <div class="form-row">
+          <button class="btn-secondary" onclick="prevStep()">← Back</button>
+          <button class="btn-primary" id="submitTrainer" onclick="submitTrainer()">Submit Profile 🚀</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="google-form-note">
+      <div class="note-icon">📊</div>
+      <div class="note-text">
+        <h5>Google Sheets Integration</h5>
+        <p>This form submits directly to your Google Sheet via Apps Script. Profiles appear in the app automatically after the sheet refreshes.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     TRAINER MODAL
+     ============================================================ -->
+<div class="overlay hidden" id="trainerOverlay" onclick="closeModal(event)">
+  <div class="modal" id="trainerModal">
+    <button class="close-btn" onclick="closeOverlay()">✕</button>
+    <div class="modal-handle"></div>
+    <div class="modal-header" id="modalHeader"></div>
+    <div class="modal-grid" id="modalGrid"></div>
+    <div class="modal-section" id="modalBio"></div>
+    <div class="modal-section" id="modalReviews"></div>
+    <div class="booking-panel">
+      <h4>Book a Session</h4>
+      <div class="booking-options" id="bookingOptions"></div>
+      <button class="whatsapp-btn" id="whatsappBtn">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/></svg>
+        Book on WhatsApp
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+// =============================================
+// STATE
+// =============================================
+let allTrainers = [];
+let bookings = JSON.parse(localStorage.getItem('fitconnect_bookings') || '[]');
+let selectedBookingType = 'session';
+let currentTrainer = null;
+const SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRpg0pyfjPHZpRAeTFNq_hpNivu5FgvtLUQhxbgQQsv6jTC0cQSUA51TYnmmYMS5wwFsgMeQS9vXZGp/pub?gid=0&single=true&output=csv'; // 🔧 Paste your Sheet CSV URL
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbxR1hd9_OHxVBHT0mRRVR25cGciME0tycnCmscXNTPu-Y_-256v-Cc-AUh6jdAbmx9S/exec';     // 🔧 Paste your Apps Script URL
+let onboardStep = 1;
+
+// =============================================
+// SAMPLE DATA (shown when no sheet connected)
+// =============================================
+const sampleTrainers = [
+  { Name:'Arjun Kapoor', Phone:'919876543210', City:'Ghaziabad', Gender:'Male', Specialization:'CrossFit & HIIT', Goals:'Weight Loss,Endurance,Strength', Experience:'5', Price:'900', PriceWeekly:'3500', PriceMonthly:'12000', Bio:'NSCA certified trainer with 5 years of experience helping clients achieve peak fitness through data-driven training plans.', Emoji:'💪', Rating:4.8, Reviews:[{name:'Priya S.',stars:5,text:'Arjun transformed my fitness in just 2 months!'},{name:'Rohit M.',stars:4,text:'Very professional and punctual. Highly recommend.'}] },
+  { Name:'Priya Nair', Phone:'919823456789', City:'Ghaziabad', Gender:'Female', Specialization:'Yoga & Mindfulness', Goals:'Flexibility,Stress Relief,Weight Loss', Experience:'7', Price:'700', PriceWeekly:'2800', PriceMonthly:'9000', Bio:'500-hour certified yoga instructor specializing in Vinyasa and Yin yoga. I help clients find balance in body and mind.', Emoji:'🧘', Rating:4.9, Reviews:[{name:'Anjali K.',stars:5,text:'Best yoga instructor I\'ve ever had. So calming.'},{name:'Dev P.',stars:5,text:'Fixed my back pain in 3 weeks!'}] },
+  { Name:'Sameer Khan', Phone:'918765432100', City:'Ghaziabad', Gender:'Male', Specialization:'Strength & Powerlifting', Goals:'Muscle Gain,Strength,Body Recomposition', Experience:'4', Price:'1100', PriceWeekly:'4200', PriceMonthly:'14000', Bio:'IPF affiliated powerlifting coach. I specialize in building raw strength through progressive overload.', Emoji:'🏋️', Rating:4.7, Reviews:[{name:'Vikram R.',stars:5,text:'Added 40kg to my deadlift in 3 months!'},{name:'Neha S.',stars:4,text:'Very knowledgeable. Programs are challenging but effective.'}] },
+  { Name:'Divya Menon', Phone:'917654321098', City:'Ghaziabad', Gender:'Female', Specialization:'Nutrition & Fat Loss', Goals:'Weight Loss,Toning,Healthy Lifestyle', Experience:'6', Price:'800', PriceWeekly:'3000', PriceMonthly:'9500', Bio:'Sports nutritionist + personal trainer combo. I help you lose fat sustainably without crash diets.', Emoji:'🥗', Rating:4.8, Reviews:[{name:'Sanjay T.',stars:5,text:'Lost 12kg in 4 months with Divya\'s guidance!'},{name:'Meera L.',stars:4,text:'Practical meal plans that actually work.'}] },
+  { Name:'Rahul Verma', Phone:'916543210987', City:'Ghaziabad', Gender:'Male', Specialization:'Functional Training', Goals:'Agility,Endurance,Sport Performance', Experience:'3', Price:'650', PriceWeekly:'2500', PriceMonthly:'8000', Bio:'Ex-athlete turned trainer. I train you for real-world performance, not just gym looks.', Emoji:'⚡', Rating:4.6, Reviews:[{name:'Aditya B.',stars:5,text:'Great energy and motivation!'},{name:'Pooja M.',stars:4,text:'Super functional workouts, love the variety.'}] },
+  { Name:'Shreya Joshi', Phone:'915432109876', City:'Ghaziabad', Gender:'Female', Specialization:'Pilates & Core Training', Goals:'Core Strength,Posture,Rehabilitation', Experience:'5', Price:'850', PriceWeekly:'3200', PriceMonthly:'10500', Bio:'Stott Pilates certified. Specializing in post-injury recovery and core strengthening for all fitness levels.', Emoji:'🤸', Rating:4.9, Reviews:[{name:'Kavita R.',stars:5,text:'Healed my sciatica! Incredible instructor.'},{name:'Manish S.',stars:5,text:'Best Pilates class in Ghaziabad, period.'}] },
+];
+
+// =============================================
+// PAGE NAVIGATION
+// =============================================
+function showPage(id) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  document.querySelectorAll('.tab-btn').forEach((b,i) => {
+    const pages = ['home','bookings','onboard'];
+    b.classList.toggle('active', pages[i] === id);
+  });
+  if (id === 'bookings') renderBookings();
+}
+
+// =============================================
+// LOAD TRAINERS
+// =============================================
+async function loadTrainers() {
+  if (!SHEET_URL || SHEET_URL.includes("YOUR_GOOGLE")) {
+    allTrainers = sampleTrainers;
+    renderTrainers();
+    return;
+  }
+  document.getElementById('trainersGrid').innerHTML = `<div class="state-box"><div class="spinner"></div><h3>Loading trainers…</h3></div>`;
+  try {
+    const url = SHEET_URL.includes('export?format=csv') ? SHEET_URL : SHEET_URL + (SHEET_URL.includes('?') ? '&' : '?') + 'output=csv';
+    const resp = await fetch(url + '&t=' + Date.now());
+    const text = await resp.text();
+    allTrainers = parseCSV(text);
+    if (allTrainers.length === 0) throw new Error('No data');
+    populateFilters();
+    renderTrainers();
+  } catch(e) {
+    allTrainers = sampleTrainers;
+    renderTrainers();
+    populateFilters();
+  }
+}
+
+function parseCSV(text) {
+  const lines = text.trim().split('\n');
+  if (lines.length < 2) return [];
+  const headers = lines[0].split(',').map(h => h.trim().replace(/"/g,''));
+  return lines.slice(1).map(line => {
+    const vals = line.match(/(".*?"|[^,]+|(?<=,)(?=,)|^(?=,)|(?<=,)$)/g) || [];
+    const obj = {};
+    headers.forEach((h,i) => { obj[h] = (vals[i] || '').replace(/"/g,'').trim(); });
+    obj.Rating = obj.Rating ? parseFloat(obj.Rating) : (4 + Math.random());
+    obj.Reviews = obj.Reviews ? [] : [];
+    obj.Emoji = obj.Emoji || ['💪','🧘','🏋️','⚡','🤸','🏃'][Math.floor(Math.random()*6)];
+    return obj;
+  }).filter(t => t.Name);
+}
+
+function populateFilters() {
+  const cities = [...new Set(allTrainers.map(t => t.City).filter(Boolean))];
+  const goals = [...new Set(allTrainers.flatMap(t => (t.Goals||'').split(',').map(g=>g.trim())).filter(Boolean))];
+  const cityEl = document.getElementById('filterCity');
+  
+  const goalEl = document.getElementById('filterGoal');
+  goalEl.innerHTML = '<option value="">Any Goal</option>' + goals.map(g => `<option>${g}</option>`).join('');
+}
+
+// =============================================
+// RENDER TRAINERS
+// =============================================
+function renderTrainers() {
+  const search = document.getElementById('searchInput').value.toLowerCase();
+  const city = document.getElementById('filterCity').value;
+  const gender = document.getElementById('filterGender').value;
+  const goal = document.getElementById('filterGoal').value;
+  const maxPrice = document.getElementById('filterPrice').value;
+
+  const filtered = allTrainers.filter(t => {
+    if (city && t.City !== city) return false;
+    if (gender && t.Gender !== gender) return false;
+    if (goal && !((t.Goals||'').toLowerCase().includes(goal.toLowerCase()))) return false;
+    if (maxPrice && parseInt(t.Price) > parseInt(maxPrice)) return false;
+    if (search && !`${t.Name} ${t.City} ${t.Specialization} ${t.Goals}`.toLowerCase().includes(search)) return false;
+    return true;
+  });
+
+  const grid = document.getElementById('trainersGrid');
+  if (filtered.length === 0) {
+    grid.innerHTML = `<div class="state-box"><div class="icon">🔍</div><h3>No trainers found</h3><p>Try adjusting your filters</p></div>`;
+    return;
+  }
+
+  grid.innerHTML = filtered.map((t, i) => `
+    <div class="trainer-card" onclick="openTrainer(${allTrainers.indexOf(t)})" style="animation-delay:${i*0.05}s">
+      <div class="card-avatar">
+        ${t.Emoji || '💪'}
+        <span class="gender-badge">${t.Gender || '—'}</span>
+      </div>
+      <div class="card-body">
+        <div class="card-name">${t.Name}</div>
+        <div class="card-spec">${t.Specialization}</div>
+        <div class="card-meta">
+          <span class="meta-pill">📍 ${t.City}</span>
+          <span class="meta-pill">⏱ ${t.Experience}y exp</span>
+          ${t.Goals ? t.Goals.split(',').slice(0,1).map(g=>`<span class="meta-pill">🎯 ${g.trim()}</span>`).join('') : ''}
+        </div>
+        <div class="card-footer">
+          <div class="price">₹${parseInt(t.Price).toLocaleString('en-IN')} <small>/session</small></div>
+          <button class="book-btn" onclick="event.stopPropagation();openTrainer(${allTrainers.indexOf(t)})">Book Now</button>
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+// =============================================
+// TRAINER MODAL
+// =============================================
+function openTrainer(idx) {
+  currentTrainer = allTrainers[idx];
+  const t = currentTrainer;
+  selectedBookingType = 'session';
+
+  document.getElementById('modalHeader').innerHTML = `
+    <div class="modal-avatar">${t.Emoji || '💪'}</div>
+    <div class="modal-name">${t.Name}</div>
+    <div class="modal-spec">${t.Specialization}</div>
+    <div style="margin-bottom:8px;">
+      <span class="stars">${'★'.repeat(Math.round(t.Rating||4.5))}${'☆'.repeat(5-Math.round(t.Rating||4.5))}</span>
+      <span style="font-size:0.8rem;color:var(--muted);margin-left:6px;">${(t.Rating||4.5).toFixed(1)} · ${t.City}</span>
+    </div>
+  `;
+
+  document.getElementById('modalGrid').innerHTML = `
+    <div class="info-tile"><div class="label">📍 Location</div><div class="val">${t.City}</div></div>
+    <div class="info-tile"><div class="label">⏱ Experience</div><div class="val">${t.Experience} years</div></div>
+    <div class="info-tile"><div class="label">⚧ Gender</div><div class="val">${t.Gender}</div></div>
+    <div class="info-tile"><div class="label">🎯 Goals</div><div class="val" style="font-size:0.8rem">${(t.Goals||'').split(',').slice(0,2).join(', ')}</div></div>
+  `;
+
+  document.getElementById('modalBio').innerHTML = t.Bio ? `<h4>About</h4><p>${t.Bio}</p>` : '';
+
+  const reviews = t.Reviews && t.Reviews.length > 0 ? t.Reviews : [];
+  document.getElementById('modalReviews').innerHTML = reviews.length > 0 ? `
+    <h4>Reviews</h4>
+    ${reviews.map(r => `
+      <div class="review-item">
+        <div class="review-top">
+          <span class="reviewer">${r.name}</span>
+          <span class="stars">${'★'.repeat(r.stars)}</span>
+        </div>
+        <div class="review-text">${r.text}</div>
+      </div>
+    `).join('')}
+  ` : '';
+
+  renderBookingOptions(t);
+
+  document.getElementById('trainerOverlay').classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+}
+
+function renderBookingOptions(t) {
+  const opts = [
+    { id: 'session', icon: '1️⃣', label: '1 Session', price: `₹${parseInt(t.Price||0).toLocaleString('en-IN')}` },
+    { id: 'weekly', icon: '📅', label: 'Weekly', price: t.PriceWeekly ? `₹${parseInt(t.PriceWeekly).toLocaleString('en-IN')}` : 'Ask trainer' },
+    { id: 'monthly', icon: '🗓️', label: 'Monthly', price: t.PriceMonthly ? `₹${parseInt(t.PriceMonthly).toLocaleString('en-IN')}` : 'Ask trainer' },
+  ];
+  document.getElementById('bookingOptions').innerHTML = opts.map(o => `
+    <div class="booking-opt ${o.id === selectedBookingType ? 'selected' : ''}" onclick="selectBooking('${o.id}')">
+      <div class="opt-icon">${o.icon}</div>
+      <div class="opt-label">${o.label}</div>
+      <div class="opt-price">${o.price}</div>
+    </div>
+  `).join('');
+
+  const msgMap = {
+    session: `Hi, I want to book 1 session with ${t.Name} (${t.Specialization}). Please let me know availability! 🏋️`,
+    weekly: `Hi, I'm interested in weekly training sessions with ${t.Name} (${t.Specialization}). Could you share the weekly plan? 📅`,
+    monthly: `Hi, I want to join the monthly training program with ${t.Name} (${t.Specialization}). Please share details! 🗓️`,
+  };
+  const msg = encodeURIComponent(msgMap[selectedBookingType]);
+  const phone = (t.Phone || '').replace(/\D/g, '');
+  document.getElementById('whatsappBtn').onclick = () => {
+    saveBooking(t, selectedBookingType);
+    window.open(`https://wa.me/${phone}?text=${msg}`, '_blank');
+  };
+}
+
+function selectBooking(type) {
+  selectedBookingType = type;
+  renderBookingOptions(currentTrainer);
+}
+
+function closeModal(e) {
+  if (e.target === document.getElementById('trainerOverlay')) closeOverlay();
+}
+function closeOverlay() {
+  document.getElementById('trainerOverlay').classList.add('hidden');
+  document.body.style.overflow = '';
+}
+
+// =============================================
+// BOOKINGS
+// =============================================
+function saveBooking(trainer, type) {
+  bookings.unshift({
+    id: Date.now(),
+    trainerName: trainer.Name,
+    trainerSpec: trainer.Specialization,
+    emoji: trainer.Emoji || '💪',
+    type,
+    time: new Date().toLocaleString('en-IN', {dateStyle:'medium', timeStyle:'short'}),
+    status: 'Pending'
+  });
+  localStorage.setItem('fitconnect_bookings', JSON.stringify(bookings));
+}
+
+function renderBookings() {
+  const el = document.getElementById('bookingsList');
+  if (bookings.length === 0) {
+    el.innerHTML = `
+      <div class="empty-bookings">
+        <div class="big-icon">📋</div>
+        <h3>No bookings yet</h3>
+        <p>When you tap "Book on WhatsApp", your bookings will appear here for your reference.</p>
+      </div>`;
+    return;
+  }
+  el.innerHTML = bookings.map(b => `
+    <div class="booking-card">
+      <div class="booking-avi">${b.emoji}</div>
+      <div class="booking-info">
+        <div class="booking-name">${b.trainerName}</div>
+        <span class="booking-type type-${b.type}">${b.type === 'session' ? '1 Session' : b.type === 'weekly' ? 'Weekly' : 'Monthly'}</span>
+        <div class="booking-time">📅 ${b.time}</div>
+      </div>
+      <div class="booking-status">${b.status}</div>
+    </div>
+  `).join('');
+}
+
+// =============================================
+// ONBOARDING FORM
+// =============================================
+function nextStep() {
+  const name = document.getElementById('trName').value.trim();
+  const phone = document.getElementById('trPhone').value.trim();
+  const city = document.getElementById('trCity').value.trim();
+  const spec = document.getElementById('trSpec').value.trim();
+  if (!name || !phone || !city || !spec) {
+    alert('Please fill all required fields marked with *');
+    return;
+  }
+  document.getElementById('formStep1').style.display = 'none';
+  document.getElementById('formStep2').style.display = 'block';
+  document.getElementById('step1').classList.remove('active');
+  document.getElementById('step1').classList.add('done');
+  document.getElementById('step2').classList.add('active');
+  onboardStep = 2;
+}
+
+function prevStep() {
+  document.getElementById('formStep2').style.display = 'none';
+  document.getElementById('formStep1').style.display = 'block';
+  document.getElementById('step1').classList.add('active');
+  document.getElementById('step1').classList.remove('done');
+  document.getElementById('step2').classList.remove('active');
+  onboardStep = 1;
+}
+
+async function submitTrainer() {
+  const exp = document.getElementById('trExp').value.trim();
+  const price = document.getElementById('trPrice').value.trim();
+  if (!exp || !price) { alert('Please fill required fields'); return; }
+
+  const btn = document.getElementById('submitTrainer');
+  btn.disabled = true; btn.textContent = 'Submitting…';
+
+  const data = {
+    Name: document.getElementById('trName').value.trim(),
+    Phone: document.getElementById('trPhone').value.trim(),
+    City: document.getElementById('trCity').value.trim(),
+    Gender: document.getElementById('trGender').value,
+    Specialization: document.getElementById('trSpec').value.trim(),
+    Goals: document.getElementById('trGoals').value.trim(),
+    Experience: exp,
+    Price: price,
+    PriceWeekly: document.getElementById('trPriceWeekly').value.trim(),
+    PriceMonthly: document.getElementById('trPriceMonthly').value.trim(),
+    Bio: document.getElementById('trBio').value.trim(),
+    Emoji: ['💪','🧘','🏋️','⚡','🤸','🏃'][Math.floor(Math.random()*6)],
+    Timestamp: new Date().toISOString()
+  };
+
+  if (SCRIPT_URL && !SCRIPT_URL.includes("YOUR_APPS")) {
+    try {
+      await fetch(SCRIPT_URL, {
+        method: 'POST',
+        mode: 'no-cors',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify(data)
+      });
+    } catch(e) { /* no-cors means no response, that's ok */ }
+  }
+
+  // Show success
+  document.getElementById('step2').classList.remove('active');
+  document.getElementById('step2').classList.add('done');
+  document.getElementById('step3').classList.add('active');
+  document.getElementById('onboardForm').innerHTML = `
+    <div class="success-box">
+      <div class="big">🎉</div>
+      <h3>Profile Submitted!</h3>
+      <p>Welcome aboard, ${data.Name}!<br/>Your profile will appear in the app once the sheet refreshes.<br/><br/><strong>Next:</strong> Check your WhatsApp for booking requests.</p>
+    </div>
+  `;
+}
+
+// =============================================
+// INIT
+// =============================================
+loadTrainers();
+populateFilters();
+</script>
+</body>
+</html>
