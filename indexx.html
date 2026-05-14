@@ -1,0 +1,1770 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>FitConnect — Find Your Trainer</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&display=swap" rel="stylesheet"/>
+<script src="https://upload-widget.cloudinary.com/global/all.js" type="text/javascript"></script>
+<style>
+  /* ============================================================
+     CSS VARIABLES — Bright Mode (Default)
+  ============================================================ */
+  :root {
+    --bg: #F8FAFC;
+    --surface: #FFFFFF;
+    --surface2: #F1F5F9;
+    --border: #E2E8F0;
+    --border-hover: #CBD5E1;
+    --accent: #10B981;
+    --accent-dark: #059669;
+    --accent-light: #D1FAE5;
+    --blue: #2563EB;
+    --blue-light: #DBEAFE;
+    --text: #0F172A;
+    --muted: #64748B;
+    --muted-light: #94A3B8;
+    --card-bg: #FFFFFF;
+    --topbar-bg: rgba(248,250,252,0.92);
+    --radius: 16px;
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+    --shadow-md: 0 4px 16px rgba(0,0,0,0.08), 0 2px 6px rgba(0,0,0,0.04);
+    --shadow-lg: 0 12px 40px rgba(0,0,0,0.12), 0 4px 12px rgba(0,0,0,0.06);
+    --why-bg: #F0FDF4;
+    --why-border: rgba(16,185,129,0.15);
+    --skeleton-base: #E2E8F0;
+    --skeleton-shine: #F1F5F9;
+  }
+
+  /* ============================================================
+     DARK MODE — "Midnight" Aesthetic
+  ============================================================ */
+  html.dark {
+    --bg: #0F172A;
+    --surface: #1E293B;
+    --surface2: #263548;
+    --border: #334155;
+    --border-hover: #475569;
+    --accent: #10B981;
+    --accent-dark: #34D399;
+    --accent-light: rgba(16,185,129,0.15);
+    --blue: #3B82F6;
+    --blue-light: rgba(59,130,246,0.15);
+    --text: #F1F5F9;
+    --muted: #94A3B8;
+    --muted-light: #64748B;
+    --card-bg: #1E293B;
+    --topbar-bg: rgba(15,23,42,0.95);
+    --shadow-sm: 0 1px 3px rgba(0,0,0,0.3), 0 1px 2px rgba(0,0,0,0.2);
+    --shadow-md: 0 4px 16px rgba(0,0,0,0.4), 0 2px 6px rgba(0,0,0,0.2);
+    --shadow-lg: 0 12px 40px rgba(0,0,0,0.5), 0 4px 12px rgba(0,0,0,0.3);
+    --why-bg: rgba(16,185,129,0.05);
+    --why-border: rgba(16,185,129,0.2);
+    --skeleton-base: #263548;
+    --skeleton-shine: #334155;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+    transition: background 0.3s ease, color 0.3s ease;
+  }
+
+  /* ============================================================
+     TOP NAV
+  ============================================================ */
+  .topbar {
+    position: sticky; top: 0; z-index: 100;
+    background: var(--topbar-bg);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 16px;
+    display: flex; align-items: center; justify-content: space-between;
+    height: 64px;
+    transition: background 0.3s ease, border-color 0.3s ease;
+    gap: 10px;
+  }
+  .logo {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800; font-size: 1.2rem;
+    letter-spacing: -0.5px;
+    display: flex; align-items: center; gap: 8px;
+    color: var(--text); text-decoration: none;
+    cursor: pointer; flex-shrink: 0;
+  }
+  .logo-icon {
+    width: 32px; height: 32px; border-radius: 8px;
+    background: var(--accent);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1rem;
+  }
+  .logo span { color: var(--accent); }
+
+  .tabbar {
+    display: flex; gap: 2px;
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 50px;
+    padding: 4px;
+    transition: background 0.3s, border-color 0.3s;
+  }
+  .tab-btn {
+    background: none; border: none; cursor: pointer;
+    color: var(--muted); font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 0.78rem; font-weight: 600;
+    padding: 6px 13px; border-radius: 50px;
+    transition: all 0.2s;
+    white-space: nowrap;
+  }
+  .tab-btn.active { background: var(--accent); color: #fff; box-shadow: 0 2px 8px rgba(16,185,129,0.3); }
+  .tab-btn:hover:not(.active) { color: var(--text); background: var(--border); }
+
+  /* Topbar icon buttons */
+  .topbar-icons { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+  .icon-btn {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    color: var(--muted);
+    width: 36px; height: 36px; border-radius: 10px;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; font-size: 0.9rem;
+    transition: all 0.2s; flex-shrink: 0;
+  }
+  .icon-btn:hover { border-color: var(--accent); color: var(--accent); background: var(--accent-light); }
+
+  /* Theme toggle — special transition */
+  #themeToggle svg { transition: transform 0.4s ease; }
+  #themeToggle:hover svg { transform: rotate(20deg); }
+
+  /* ============================================================
+     PAGE SYSTEM (SPA)
+  ============================================================ */
+  .page { display: none; animation: fadeUp 0.3s ease; }
+  .page.active { display: block; }
+  @keyframes fadeUp { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+
+  /* ============================================================
+     HERO
+  ============================================================ */
+  .hero {
+    padding: 52px 20px 36px;
+    max-width: 680px; margin: 0 auto;
+    text-align: center;
+  }
+  .hero-tag {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--accent-light);
+    border: 1px solid rgba(16,185,129,0.3);
+    color: var(--accent-dark); font-size: 0.72rem; font-weight: 700;
+    padding: 5px 14px; border-radius: 50px;
+    margin-bottom: 18px; letter-spacing: 1.2px; text-transform: uppercase;
+  }
+  .hero h1 {
+    font-family: 'Syne', sans-serif;
+    font-size: clamp(2rem, 5vw, 3rem);
+    font-weight: 800; line-height: 1.1;
+    letter-spacing: -1.5px; margin-bottom: 14px;
+    color: var(--text);
+  }
+  .hero h1 em { color: var(--accent); font-style: normal; }
+  .hero p { color: var(--muted); font-size: 1rem; line-height: 1.65; max-width: 480px; margin: 0 auto; }
+
+  /* ============================================================
+     SEARCH + FILTERS
+  ============================================================ */
+  .search-bar {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    border-radius: 14px; padding: 12px 16px;
+    margin: 0 16px 14px;
+    max-width: calc(1100px - 32px);
+    margin-left: auto; margin-right: auto;
+    transition: border-color 0.2s, box-shadow 0.2s, background 0.3s;
+    box-shadow: var(--shadow-sm);
+  }
+  .search-bar:focus-within { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(16,185,129,0.12); }
+  .search-bar svg { color: var(--muted-light); flex-shrink: 0; }
+  .search-bar input {
+    background: none; border: none; outline: none;
+    color: var(--text); font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 0.9rem; width: 100%;
+  }
+  .search-bar input::placeholder { color: var(--muted-light); }
+  .clear-search {
+    background: var(--surface2); border: 1px solid var(--border);
+    color: var(--muted); font-size: 0.72rem; font-weight: 600;
+    padding: 4px 10px; border-radius: 8px; cursor: pointer;
+    white-space: nowrap; transition: all 0.15s; flex-shrink: 0;
+  }
+  .clear-search:hover { border-color: var(--accent); color: var(--accent); }
+
+  .filters-wrap {
+    padding: 0 16px 20px;
+    max-width: 1100px; margin: 0 auto;
+  }
+  .filter-scroll {
+    display: flex; gap: 10px; overflow-x: auto; padding-bottom: 4px;
+    scrollbar-width: none;
+  }
+  .filter-scroll::-webkit-scrollbar { display: none; }
+  .filter-group { flex-shrink: 0; }
+  .filter-group label {
+    font-size: 0.68rem; color: var(--muted); display: block;
+    margin-bottom: 5px; text-transform: uppercase; letter-spacing: .9px; font-weight: 600;
+  }
+  select {
+    background: var(--surface);
+    border: 1.5px solid var(--border);
+    color: var(--text);
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 0.82rem; font-weight: 500;
+    padding: 9px 32px 9px 12px;
+    border-radius: 11px;
+    cursor: pointer; outline: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' fill='none'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236B7280' stroke-width='1.5' stroke-linecap='round'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 10px center;
+    min-width: 140px;
+    transition: border-color 0.2s, box-shadow 0.2s, background 0.3s;
+    box-shadow: var(--shadow-sm);
+  }
+  select:focus { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(16,185,129,0.1); }
+
+  /* ============================================================
+     TRAINERS GRID
+  ============================================================ */
+  .trainers-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 14px;
+    padding: 0 16px 100px;
+    max-width: 1100px; margin: 0 auto;
+  }
+  @media (min-width: 540px) { .trainers-grid { grid-template-columns: repeat(2, 1fr); } }
+  @media (min-width: 900px) { .trainers-grid { grid-template-columns: repeat(3, 1fr); } }
+
+  /* ============================================================
+     TRAINER CARD
+  ============================================================ */
+  .trainer-card {
+    background: var(--card-bg);
+    border: 1.5px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden; cursor: pointer;
+    transition: transform 0.2s, border-color 0.2s, box-shadow 0.2s, background 0.3s;
+    position: relative;
+    box-shadow: var(--shadow-sm);
+    animation: fadeUp 0.35s ease both;
+  }
+  .trainer-card:hover {
+    transform: translateY(-3px);
+    border-color: rgba(16,185,129,0.4);
+    box-shadow: var(--shadow-lg), 0 0 0 1px rgba(16,185,129,0.1);
+  }
+  .card-avatar {
+    width: 100%; aspect-ratio: 4/3;
+    background: linear-gradient(135deg, var(--surface2), var(--border));
+    display: flex; align-items: center; justify-content: center;
+    font-size: 4rem; position: relative; overflow: hidden;
+  }
+  .card-avatar img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; z-index: 0; }
+  .card-avatar .avatar-emoji { position: relative; z-index: 2; }
+  .gender-badge {
+    position: absolute; top: 10px; right: 10px;
+    background: rgba(255,255,255,0.92); backdrop-filter: blur(8px);
+    border: 1px solid rgba(0,0,0,0.08);
+    padding: 3px 10px; border-radius: 50px;
+    font-size: 0.68rem; font-weight: 700; color: #334155;
+    z-index: 3;
+  }
+  html.dark .gender-badge { background: rgba(30,41,59,0.92); color: var(--muted); border-color: var(--border); }
+
+  /* Verified Badge — upgraded to "Certified & Verified" */
+  .verified-badge {
+    position: absolute; top: 10px; left: 10px;
+    background: var(--blue);
+    color: #fff;
+    padding: 3px 9px; border-radius: 50px;
+    font-size: 0.65rem; font-weight: 700;
+    z-index: 3;
+    display: flex; align-items: center; gap: 4px;
+    box-shadow: 0 2px 8px rgba(37,99,235,0.35);
+    letter-spacing: 0.2px;
+  }
+
+  /* Service pills on card */
+  .service-pill {
+    background: rgba(16,185,129,0.1);
+    border: 1px solid rgba(16,185,129,0.25);
+    color: var(--accent-dark);
+    padding: 2px 8px; border-radius: 50px;
+    font-size: 0.65rem; font-weight: 700;
+    display: inline-flex; align-items: center; gap: 3px;
+  }
+
+  .card-body { padding: 14px 16px 16px; }
+  .card-name {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700; font-size: 1.05rem;
+    margin-bottom: 2px; color: var(--text);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .card-spec { color: var(--accent-dark); font-size: 0.78rem; font-weight: 600; margin-bottom: 8px; }
+  .card-meta { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 10px; }
+  .meta-pill {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    padding: 3px 9px; border-radius: 50px;
+    font-size: 0.7rem; color: var(--muted); font-weight: 500;
+  }
+  .card-services { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 12px; }
+  .card-footer { display: flex; align-items: center; justify-content: space-between; }
+  .price {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800; font-size: 1.15rem; color: var(--text);
+  }
+  .price small { font-size: 0.62rem; color: var(--muted-light); font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 500; }
+  .book-btn {
+    background: var(--accent);
+    color: #fff; border: none; cursor: pointer;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 700; font-size: 0.78rem;
+    padding: 9px 16px; border-radius: 10px;
+    transition: all 0.2s; letter-spacing: 0.2px;
+    box-shadow: 0 2px 8px rgba(16,185,129,0.25);
+  }
+  .book-btn:hover { background: var(--accent-dark); transform: scale(1.03); }
+
+  /* ============================================================
+     SKELETON LOADER
+  ============================================================ */
+  @keyframes shimmer {
+    0% { background-position: -400px 0; }
+    100% { background-position: 400px 0; }
+  }
+  .skeleton {
+    background: var(--skeleton-base);
+    background-image: linear-gradient(90deg, var(--skeleton-base) 0px, var(--skeleton-shine) 40px, var(--skeleton-base) 80px);
+    background-size: 400px 100%;
+    animation: shimmer 1.4s infinite linear;
+    border-radius: 8px;
+  }
+  .skeleton-card { background: var(--card-bg); border: 1.5px solid var(--border); border-radius: var(--radius); overflow: hidden; box-shadow: var(--shadow-sm); }
+  .skeleton-avatar { width: 100%; aspect-ratio: 4/3; }
+  .skeleton-body { padding: 14px 16px 18px; }
+  .skeleton-line { height: 12px; margin-bottom: 10px; border-radius: 6px; }
+  .skeleton-line.w-70 { width: 70%; }
+  .skeleton-line.w-50 { width: 50%; }
+  .skeleton-line.w-40 { width: 40%; }
+  .skeleton-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 14px; }
+  .skeleton-price { height: 22px; width: 80px; border-radius: 6px; }
+  .skeleton-btn { height: 34px; width: 90px; border-radius: 10px; }
+
+  /* ============================================================
+     EMPTY / STATE BOX
+  ============================================================ */
+  .state-box { text-align: center; padding: 80px 20px; color: var(--muted); grid-column: 1/-1; }
+  .state-box .icon { font-size: 3rem; margin-bottom: 12px; }
+  .state-box h3 { color: var(--text); font-family: 'Syne', sans-serif; margin-bottom: 6px; font-size: 1.15rem; }
+  .state-box p { font-size: 0.88rem; line-height: 1.6; margin-bottom: 18px; }
+  .clear-filters-btn {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--accent); color: #fff; border: none; cursor: pointer;
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    font-weight: 700; font-size: 0.85rem;
+    padding: 11px 22px; border-radius: 12px;
+    transition: all 0.2s; box-shadow: 0 2px 10px rgba(16,185,129,0.25);
+  }
+  .clear-filters-btn:hover { background: var(--accent-dark); transform: scale(1.02); }
+
+  /* ============================================================
+     WHY FITCONNECT SECTION (Sales Pitch)
+  ============================================================ */
+  .why-section {
+    background: var(--why-bg);
+    border: 1px solid var(--why-border);
+    border-radius: 24px;
+    padding: 40px 28px;
+    margin: 0 16px 32px;
+    max-width: calc(1100px - 32px);
+    margin-left: auto; margin-right: auto;
+  }
+  .why-header { text-align: center; margin-bottom: 32px; }
+  .why-tag {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--accent-light);
+    border: 1px solid rgba(16,185,129,0.3);
+    color: var(--accent-dark); font-size: 0.7rem; font-weight: 700;
+    padding: 4px 12px; border-radius: 50px;
+    margin-bottom: 12px; letter-spacing: 1.2px; text-transform: uppercase;
+  }
+  .why-title {
+    font-family: 'Syne', sans-serif; font-weight: 800;
+    font-size: clamp(1.4rem, 3vw, 2rem); letter-spacing: -0.8px;
+    color: var(--text); margin-bottom: 8px; line-height: 1.2;
+  }
+  .why-title em { color: var(--accent); font-style: normal; }
+  .why-subtitle { color: var(--muted); font-size: 0.9rem; line-height: 1.6; max-width: 500px; margin: 0 auto; }
+
+  .why-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  @media (min-width: 700px) { .why-grid { grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 480px) { .why-grid { grid-template-columns: 1fr; } }
+
+  .why-card {
+    background: var(--card-bg);
+    border: 1.5px solid var(--border);
+    border-radius: 16px; padding: 20px 16px;
+    transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s, background 0.3s;
+    box-shadow: var(--shadow-sm);
+  }
+  .why-card:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-md);
+    border-color: rgba(16,185,129,0.3);
+  }
+  .why-icon {
+    width: 44px; height: 44px; border-radius: 12px;
+    background: var(--accent-light);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.3rem; margin-bottom: 12px;
+  }
+  .why-card h4 {
+    font-family: 'Syne', sans-serif; font-weight: 700;
+    font-size: 0.9rem; color: var(--text); margin-bottom: 5px;
+    line-height: 1.3;
+  }
+  .why-card p { font-size: 0.78rem; color: var(--muted); line-height: 1.55; }
+
+  /* ============================================================
+     TRAINER MODAL
+  ============================================================ */
+  .overlay {
+    position: fixed; inset: 0;
+    background: rgba(0,0,0,0.55);
+    backdrop-filter: blur(6px);
+    z-index: 200; display: flex; align-items: flex-end;
+    animation: fadeIn 0.2s ease;
+  }
+  @keyframes fadeIn { from{opacity:0} to{opacity:1} }
+  .overlay.hidden { display: none; }
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 24px 24px 0 0;
+    width: 100%; max-width: 620px;
+    margin: 0 auto;
+    max-height: 92vh; overflow-y: auto;
+    animation: slideUp 0.3s cubic-bezier(.16,1,.3,1);
+    padding-bottom: 40px;
+    box-shadow: var(--shadow-lg);
+    transition: background 0.3s, border-color 0.3s;
+  }
+  @keyframes slideUp { from{transform:translateY(100%)} to{transform:translateY(0)} }
+  .modal-handle { width: 40px; height: 4px; border-radius: 2px; background: var(--border); margin: 12px auto 0; }
+  .modal-header { padding: 20px 20px 0; }
+  .modal-avatar {
+    width: 80px; height: 80px;
+    background: var(--surface2);
+    border-radius: 50%; display: flex; align-items: center;
+    justify-content: center; font-size: 2.5rem;
+    border: 3px solid var(--border);
+    margin-bottom: 12px; overflow: hidden;
+  }
+  .modal-name { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.6rem; letter-spacing: -0.5px; margin-bottom: 2px; color: var(--text); }
+  .modal-spec { color: var(--accent-dark); font-weight: 600; margin-bottom: 10px; }
+  .modal-service-pills { display: flex; gap: 6px; flex-wrap: wrap; margin-bottom: 16px; }
+  .modal-grid {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 10px; padding: 0 20px; margin-bottom: 16px;
+  }
+  .info-tile {
+    background: var(--surface2);
+    border: 1px solid var(--border);
+    border-radius: 12px; padding: 12px;
+    transition: background 0.3s, border-color 0.3s;
+  }
+  .info-tile .label { font-size: 0.68rem; color: var(--muted); text-transform: uppercase; letter-spacing: .8px; margin-bottom: 4px; font-weight: 600; }
+  .info-tile .val { font-weight: 700; font-size: 0.9rem; color: var(--text); }
+  .modal-section { padding: 0 20px; margin-bottom: 16px; }
+  .modal-section h4 {
+    font-family: 'Syne', sans-serif;
+    font-size: 0.8rem; font-weight: 700;
+    color: var(--muted); text-transform: uppercase;
+    letter-spacing: 1px; margin-bottom: 10px;
+  }
+  .modal-section p { color: var(--muted); font-size: 0.9rem; line-height: 1.65; }
+
+  .booking-panel { padding: 0 20px; }
+  .booking-panel h4 { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.8rem; color: var(--muted); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 10px; }
+  .booking-options { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; margin-bottom: 16px; }
+  .booking-opt {
+    background: var(--surface2); border: 2px solid var(--border);
+    border-radius: 12px; padding: 12px 8px;
+    text-align: center; cursor: pointer; transition: all 0.2s;
+  }
+  .booking-opt.selected { border-color: var(--accent); background: var(--accent-light); }
+  .booking-opt .opt-icon { font-size: 1.4rem; margin-bottom: 4px; }
+  .booking-opt .opt-label { font-size: 0.78rem; font-weight: 700; color: var(--text); }
+  .booking-opt .opt-price { font-size: 0.7rem; color: var(--muted); margin-top: 2px; }
+  .whatsapp-btn {
+    width: 100%; background: #25D366; color: #fff; border: none; cursor: pointer;
+    font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 1rem;
+    padding: 16px; border-radius: 14px;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    transition: all 0.2s; letter-spacing: 0.2px; margin-top: 4px;
+    box-shadow: 0 4px 16px rgba(37,211,102,0.25);
+  }
+  .whatsapp-btn:hover { background: #1da851; transform: scale(1.01); }
+  .close-btn {
+    position: absolute; top: 16px; right: 16px;
+    background: var(--surface2); border: 1px solid var(--border);
+    color: var(--muted); width: 32px; height: 32px;
+    border-radius: 50%; cursor: pointer; font-size: 0.9rem;
+    display: flex; align-items: center; justify-content: center;
+    transition: all 0.2s; z-index: 10;
+  }
+  .close-btn:hover { color: var(--text); border-color: var(--text); }
+
+  /* ============================================================
+     BOOKINGS PAGE
+  ============================================================ */
+  .page-header { padding: 36px 20px 20px; font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.8rem; letter-spacing: -0.5px; color: var(--text); }
+  .page-header span { color: var(--accent); }
+  .empty-bookings { text-align: center; padding: 60px 20px; color: var(--muted); }
+  .empty-bookings .big-icon { font-size: 4rem; margin-bottom: 16px; }
+  .empty-bookings h3 { font-family: 'Syne', sans-serif; color: var(--text); margin-bottom: 8px; }
+  .empty-bookings p { font-size: 0.9rem; line-height: 1.65; }
+  .bookings-list { padding: 0 16px 100px; }
+  .booking-card {
+    background: var(--card-bg); border: 1.5px solid var(--border);
+    border-radius: var(--radius); padding: 16px; margin-bottom: 10px;
+    display: flex; align-items: center; gap: 14px;
+    animation: fadeUp 0.3s ease; box-shadow: var(--shadow-sm);
+    transition: background 0.3s, border-color 0.3s;
+  }
+  .booking-avi { font-size: 2.2rem; }
+  .booking-info { flex: 1; }
+  .booking-name { font-family: 'Syne', sans-serif; font-weight: 700; margin-bottom: 2px; color: var(--text); }
+  .booking-type { font-size: 0.72rem; font-weight: 700; padding: 2px 10px; border-radius: 50px; display: inline-block; margin-bottom: 4px; }
+  .type-session { background: var(--accent-light); color: var(--accent-dark); }
+  .type-weekly { background: #FEF3C7; color: #D97706; }
+  .type-monthly { background: #EDE9FE; color: #7C3AED; }
+  html.dark .type-weekly { background: rgba(217,119,6,0.15); }
+  html.dark .type-monthly { background: rgba(124,58,237,0.15); }
+  .booking-time { font-size: 0.72rem; color: var(--muted); }
+  .booking-actions { display: flex; flex-direction: column; gap: 6px; flex-shrink: 0; }
+  .status-btn { border: none; cursor: pointer; font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 0.72rem; padding: 6px 12px; border-radius: 8px; transition: all 0.2s; white-space: nowrap; }
+  .confirm-btn { background: var(--accent-light); color: var(--accent-dark); border: 1px solid rgba(16,185,129,0.25); }
+  .confirm-btn:hover { background: #A7F3D0; }
+  .reject-btn { background: #FEE2E2; color: #EF4444; border: 1px solid rgba(239,68,68,0.2); }
+  .reject-btn:hover { background: #FECACA; }
+  html.dark .reject-btn { background: rgba(239,68,68,0.12); }
+  .booking-status { font-size: 0.72rem; font-weight: 700; padding: 4px 10px; border-radius: 50px; }
+  .status-Confirmed,.status-confirmed { color: var(--accent-dark); background: var(--accent-light); }
+  .status-Rejected,.status-rejected { color: #EF4444; background: #FEE2E2; }
+
+  /* ============================================================
+     ONBOARDING PAGE
+  ============================================================ */
+  .onboard-wrap { padding: 28px 20px 100px; max-width: 600px; margin: 0 auto; }
+  .onboard-tag {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--accent-light); border: 1px solid rgba(16,185,129,0.3);
+    color: var(--accent-dark); font-size: 0.72rem; font-weight: 700;
+    padding: 5px 14px; border-radius: 50px; margin-bottom: 12px;
+    letter-spacing: .8px; text-transform: uppercase;
+  }
+  .onboard-wrap h2 { font-family: 'Syne', sans-serif; font-size: 1.9rem; font-weight: 800; letter-spacing: -0.5px; margin-bottom: 8px; color: var(--text); }
+  .onboard-wrap > p { color: var(--muted); font-size: 0.9rem; line-height: 1.65; margin-bottom: 24px; }
+
+  .step-flow { display: flex; gap: 0; margin-bottom: 28px; position: relative; }
+  .step-flow::before { content: ''; position: absolute; top: 15px; left: 24px; right: 24px; height: 2px; background: var(--border); z-index: 0; }
+  .step { flex: 1; text-align: center; position: relative; z-index: 1; }
+  .step-circle {
+    width: 30px; height: 30px; border-radius: 50%;
+    background: var(--surface2); border: 2px solid var(--border);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 0.78rem; font-weight: 700; margin: 0 auto 6px; transition: all 0.3s;
+  }
+  .step.done .step-circle { background: var(--accent); border-color: var(--accent); color: #fff; }
+  .step.active .step-circle { background: var(--accent); border-color: var(--accent); color: #fff; box-shadow: 0 0 0 4px var(--accent-light); }
+  .step-label { font-size: 0.68rem; color: var(--muted); font-weight: 600; }
+  .step.active .step-label { color: var(--text); }
+
+  .form-card {
+    background: var(--card-bg); border: 1.5px solid var(--border);
+    border-radius: 20px; padding: 24px; box-shadow: var(--shadow-sm);
+    transition: background 0.3s, border-color 0.3s;
+  }
+  .form-group { margin-bottom: 16px; }
+  .form-group label { display: block; font-size: 0.75rem; font-weight: 700; color: var(--muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: .6px; }
+  .form-group input, .form-group select, .form-group textarea {
+    width: 100%; background: var(--surface2);
+    border: 1.5px solid var(--border);
+    color: var(--text); font-family: 'Plus Jakarta Sans', sans-serif;
+    font-size: 0.9rem; padding: 10px 14px;
+    border-radius: 10px; outline: none;
+    transition: border-color 0.2s, box-shadow 0.2s, background 0.3s; resize: vertical;
+    appearance: none;
+  }
+  .form-group textarea { min-height: 80px; }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+    border-color: var(--accent); box-shadow: 0 0 0 3px rgba(16,185,129,0.1); background: var(--surface);
+  }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .submit-btn {
+    width: 100%; background: var(--accent); color: #fff; border: none; cursor: pointer;
+    font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1rem;
+    padding: 14px; border-radius: 14px; transition: all 0.2s; margin-top: 4px;
+    letter-spacing: 0.3px; box-shadow: 0 4px 14px rgba(16,185,129,0.25);
+  }
+  .submit-btn:hover { background: var(--accent-dark); transform: scale(1.01); }
+  .submit-btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; }
+
+  /* Checkbox & Toggle styles */
+  .check-group { display: flex; flex-direction: column; gap: 10px; }
+  .check-item {
+    display: flex; align-items: center; gap: 10px;
+    background: var(--surface2); border: 1.5px solid var(--border);
+    border-radius: 10px; padding: 10px 14px; cursor: pointer;
+    transition: border-color 0.2s, background 0.2s;
+    user-select: none;
+  }
+  .check-item:hover { border-color: var(--accent); }
+  .check-item input[type="checkbox"] { width: 17px; height: 17px; accent-color: var(--accent); cursor: pointer; flex-shrink: 0; pointer-events: none; }
+  .check-item span { font-size: 0.85rem; font-weight: 500; color: var(--text); }
+
+  /* Online toggle */
+  .toggle-row {
+    display: flex; align-items: center; justify-content: space-between;
+    background: var(--surface2); border: 1.5px solid var(--border);
+    border-radius: 10px; padding: 12px 14px;
+    transition: border-color 0.2s;
+  }
+  .toggle-row:has(input:checked) { border-color: var(--accent); background: var(--accent-light); }
+  .toggle-label { display: flex; flex-direction: column; gap: 2px; }
+  .toggle-label strong { font-size: 0.85rem; font-weight: 600; color: var(--text); }
+  .toggle-label small { font-size: 0.72rem; color: var(--muted); }
+  .toggle-switch { position: relative; width: 44px; height: 24px; flex-shrink: 0; }
+  .toggle-switch input { opacity: 0; width: 0; height: 0; }
+  .toggle-slider {
+    position: absolute; cursor: pointer; inset: 0;
+    background: var(--border); border-radius: 50px;
+    transition: 0.2s;
+  }
+  .toggle-slider::before {
+    content: ''; position: absolute; width: 18px; height: 18px;
+    left: 3px; bottom: 3px; background: white; border-radius: 50%; transition: 0.2s;
+  }
+  .toggle-switch input:checked + .toggle-slider { background: var(--accent); }
+  .toggle-switch input:checked + .toggle-slider::before { transform: translateX(20px); }
+
+  /* Cert upload */
+  .cert-upload-box {
+    border: 2px dashed var(--border); border-radius: 12px; padding: 20px;
+    text-align: center; cursor: pointer; transition: all 0.2s; background: var(--surface2);
+  }
+  .cert-upload-box:hover { border-color: var(--accent); background: var(--accent-light); }
+
+  .success-box { text-align: center; padding: 40px 20px; }
+  .success-box .big { font-size: 4rem; margin-bottom: 16px; }
+  .success-box h3 { font-family: 'Syne', sans-serif; font-size: 1.5rem; margin-bottom: 8px; color: var(--text); }
+  .success-box p { color: var(--muted); font-size: 0.9rem; line-height: 1.65; }
+  .btn-secondary { flex: 1; background: var(--surface2); border: 1.5px solid var(--border); color: var(--muted); cursor: pointer; font-family: 'Plus Jakarta Sans', sans-serif; font-weight: 700; font-size: 0.85rem; padding: 10px; border-radius: 10px; transition: all 0.2s; }
+  .btn-secondary:hover { border-color: var(--text); color: var(--text); }
+  .btn-primary { flex: 2; background: var(--accent); border: none; color: #fff; cursor: pointer; font-family: 'Syne', sans-serif; font-weight: 700; font-size: 0.9rem; padding: 10px; border-radius: 10px; transition: all 0.2s; box-shadow: 0 2px 8px rgba(16,185,129,0.25); }
+  .btn-primary:hover { background: var(--accent-dark); }
+
+  .photo-upload-box { border: 2px dashed var(--border); border-radius: 12px; padding: 24px; text-align: center; cursor: pointer; transition: all 0.2s; background: var(--surface2); }
+  .photo-upload-box:hover { border-color: var(--accent); background: var(--accent-light); }
+  .upload-icon { font-size: 2rem; margin-bottom: 6px; }
+  .upload-text { font-weight: 700; font-size: 0.9rem; margin-bottom: 2px; color: var(--text); }
+  .upload-hint { font-size: 0.75rem; color: var(--muted); }
+
+  /* ============================================================
+     ABOUT PAGE
+  ============================================================ */
+  #page-about { max-width: 760px; margin: 0 auto; padding: 52px 20px 100px; }
+  .about-hero-tag {
+    display: inline-flex; align-items: center; gap: 6px;
+    background: var(--blue-light); border: 1px solid rgba(37,99,235,0.2);
+    color: var(--blue); font-size: 0.72rem; font-weight: 700;
+    padding: 5px 14px; border-radius: 50px;
+    margin-bottom: 18px; letter-spacing: 1.2px; text-transform: uppercase;
+  }
+  #page-about h1 { font-family: 'Syne', sans-serif; font-weight: 800; font-size: clamp(1.8rem, 4vw, 2.6rem); letter-spacing: -1px; margin-bottom: 16px; color: var(--text); line-height: 1.15; }
+  #page-about h1 em { color: var(--accent); font-style: normal; }
+  .about-lead { font-size: 1.05rem; line-height: 1.7; color: var(--muted); margin-bottom: 40px; max-width: 600px; }
+  .about-divider { border: none; border-top: 1.5px solid var(--border); margin: 36px 0; }
+  .about-how-title { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.4rem; margin-bottom: 6px; color: var(--text); }
+  .about-how-sub { color: var(--muted); font-size: 0.9rem; margin-bottom: 28px; line-height: 1.6; }
+  .how-steps { display: grid; gap: 14px; }
+  @media (min-width: 640px) { .how-steps { grid-template-columns: repeat(3, 1fr); } }
+  .how-step {
+    background: var(--card-bg); border: 1.5px solid var(--border);
+    border-radius: var(--radius); padding: 22px 18px; box-shadow: var(--shadow-sm);
+    transition: transform 0.2s, box-shadow 0.2s, background 0.3s;
+  }
+  .how-step:hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
+  .how-step-num { width: 36px; height: 36px; border-radius: 10px; background: var(--accent); color: #fff; display: flex; align-items: center; justify-content: center; font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1rem; margin-bottom: 14px; }
+  .how-step h4 { font-family: 'Syne', sans-serif; font-weight: 700; font-size: 1rem; margin-bottom: 6px; color: var(--text); }
+  .how-step p { font-size: 0.85rem; color: var(--muted); line-height: 1.6; }
+  .about-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin-top: 36px; }
+  .stat-card { background: var(--card-bg); border: 1.5px solid var(--border); border-radius: var(--radius); padding: 20px 16px; text-align: center; box-shadow: var(--shadow-sm); transition: background 0.3s; }
+  .stat-num { font-family: 'Syne', sans-serif; font-weight: 800; font-size: 1.8rem; color: var(--accent); letter-spacing: -1px; margin-bottom: 4px; }
+  .stat-label { font-size: 0.8rem; color: var(--muted); font-weight: 500; }
+
+  /* ============================================================
+     CLOUDINARY UPLOAD PROGRESS
+  ============================================================ */
+  .upload-progress {
+    margin-top: 8px; height: 4px; border-radius: 2px;
+    background: var(--border); overflow: hidden; display: none;
+  }
+  .upload-progress-bar {
+    height: 100%; background: var(--accent); border-radius: 2px;
+    transition: width 0.3s ease;
+  }
+  .upload-status {
+    font-size: 0.72rem; color: var(--accent-dark); font-weight: 600;
+    margin-top: 4px; display: none;
+  }
+
+  /* ============================================================
+     COUNT BADGE + MISC RESPONSIVE
+  ============================================================ */
+  .count-badge { background: var(--accent-light); color: var(--accent-dark); font-size: 0.7rem; font-weight: 800; padding: 2px 8px; border-radius: 50px; margin-left: 6px; }
+
+  @media (max-width: 500px) {
+    .modal-grid { grid-template-columns: 1fr 1fr; }
+    .booking-options { grid-template-columns: 1fr 1fr 1fr; }
+    .form-row { grid-template-columns: 1fr; }
+    .tabbar { gap: 1px; }
+    .tab-btn { padding: 6px 9px; font-size: 0.72rem; }
+    .about-stats { grid-template-columns: 1fr; }
+  }
+</style>
+</head>
+<body>
+
+<!-- ============================================================
+     TOP BAR
+============================================================ -->
+<div class="topbar">
+  <div class="logo" onclick="showPage('home')" title="FitConnect Home">
+    <div class="logo-icon">⚡</div>
+    Fit<span>Connect</span>
+  </div>
+
+  <div class="tabbar">
+    <button class="tab-btn active" onclick="showPage('home')">Home</button>
+    <button class="tab-btn" onclick="showPage('why')">Why Us</button>
+    <button class="tab-btn" onclick="showPage('about')">About</button>
+    <button class="tab-btn" onclick="showPage('bookings')">Bookings</button>
+    <button class="tab-btn" onclick="showPage('onboard')">Trainers</button>
+  </div>
+
+  <div class="topbar-icons">
+    <!-- Theme Toggle -->
+    <button class="icon-btn" id="themeToggle" onclick="toggleTheme()" title="Toggle Dark/Light Mode">
+      <!-- Sun icon (shown in dark mode) -->
+      <svg id="iconSun" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="display:none">
+        <circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/>
+      </svg>
+      <!-- Moon icon (shown in light mode) -->
+      <svg id="iconMoon" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/>
+      </svg>
+    </button>
+  </div>
+</div>
+
+<!-- ============================================================
+     HOME PAGE
+============================================================ -->
+<div class="page active" id="page-home">
+  <div class="hero">
+    <div class="hero-tag">🏙️ Ghaziabad &amp; Delhi NCR</div>
+    <h1>Your personal trainer,<br/><em>on demand</em></h1>
+    <p>Browse verified, certified trainers nearby. Book a session in seconds via WhatsApp — home, online, or wherever works for you.</p>
+  </div>
+
+  <div class="search-bar">
+    <svg width="16" height="16" fill="none" viewBox="0 0 24 24">
+      <circle cx="11" cy="11" r="8" stroke="currentColor" stroke-width="2"/>
+      <path d="m21 21-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+    </svg>
+    <input type="text" id="searchInput" placeholder="Search by name, goal, area…" oninput="renderTrainers()"/>
+    <button class="clear-search" onclick="clearSearch()" id="clearSearchBtn" style="display:none">✕ Clear</button>
+  </div>
+
+  <div class="filters-wrap">
+    <div class="filter-scroll">
+      <div class="filter-group">
+        <label>📍 Locality</label>
+        <select id="filterLocality" onchange="renderTrainers()"><option value="">All Areas</option></select>
+      </div>
+      <div class="filter-group">
+        <label>⚧ Gender</label>
+        <select id="filterGender" onchange="renderTrainers()">
+          <option value="">Any Gender</option>
+          <option>Male</option>
+          <option>Female</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label>🎯 Goal</label>
+        <select id="filterGoal" onchange="renderTrainers()"><option value="">Any Goal</option></select>
+      </div>
+      <div class="filter-group">
+        <label>💸 Max Price</label>
+        <select id="filterPrice" onchange="renderTrainers()">
+          <option value="">Any Price</option>
+          <option value="500">Under ₹500</option>
+          <option value="1000">Under ₹1000</option>
+          <option value="2000">Under ₹2000</option>
+        </select>
+      </div>
+      <div class="filter-group">
+        <label>🛎️ Services</label>
+        <select id="filterService" onchange="renderTrainers()">
+          <option value="">All Services</option>
+          <option value="home">Home Training</option>
+          <option value="online">Online Training</option>
+          <option value="equipment">Equipment Provided</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <!-- Why FitConnect teaser strip -->
+  <div style="padding: 0 16px 20px; max-width: 1100px; margin: 0 auto;">
+    <div style="background:var(--accent-light);border:1px solid rgba(16,185,129,0.25);border-radius:14px;padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;">
+      <div style="display:flex;align-items:center;gap:10px;">
+        <span style="font-size:1.4rem;">🏠</span>
+        <div>
+          <div style="font-family:'Syne',sans-serif;font-weight:700;font-size:0.88rem;color:var(--text);">Skip the gym. Train at home.</div>
+          <div style="font-size:0.75rem;color:var(--muted);">Many trainers bring equipment + offer online sessions</div>
+        </div>
+      </div>
+      <button onclick="showPage('why')" style="background:var(--accent);color:#fff;border:none;cursor:pointer;font-family:'Plus Jakarta Sans',sans-serif;font-weight:700;font-size:0.78rem;padding:8px 16px;border-radius:9px;white-space:nowrap;transition:all 0.2s;" onmouseover="this.style.background='var(--accent-dark)'" onmouseout="this.style.background='var(--accent)'">Why FitConnect? →</button>
+    </div>
+  </div>
+
+  <div class="trainers-grid" id="trainersGrid">
+    <div class="skeleton-card"><div class="skeleton skeleton-avatar"></div><div class="skeleton-body"><div class="skeleton skeleton-line w-70"></div><div class="skeleton skeleton-line w-50"></div><div class="skeleton-footer"><div class="skeleton skeleton-price"></div><div class="skeleton skeleton-btn"></div></div></div></div>
+    <div class="skeleton-card"><div class="skeleton skeleton-avatar"></div><div class="skeleton-body"><div class="skeleton skeleton-line w-70"></div><div class="skeleton skeleton-line w-50"></div><div class="skeleton-footer"><div class="skeleton skeleton-price"></div><div class="skeleton skeleton-btn"></div></div></div></div>
+    <div class="skeleton-card"><div class="skeleton skeleton-avatar"></div><div class="skeleton-body"><div class="skeleton skeleton-line w-70"></div><div class="skeleton skeleton-line w-50"></div><div class="skeleton-footer"><div class="skeleton skeleton-price"></div><div class="skeleton skeleton-btn"></div></div></div></div>
+  </div>
+</div>
+
+<!-- ============================================================
+     WHY FITCONNECT PAGE (Sales Pitch)
+============================================================ -->
+<div class="page" id="page-why">
+  <div style="max-width:900px;margin:0 auto;padding:52px 20px 100px;">
+    <div style="text-align:center;margin-bottom:48px;">
+      <div class="why-tag">💡 Our Promise</div>
+      <h1 style="font-family:'Syne',sans-serif;font-weight:800;font-size:clamp(1.8rem,4vw,2.8rem);letter-spacing:-1.2px;color:var(--text);margin-bottom:14px;line-height:1.15;">Why <em style="color:var(--accent);font-style:normal;">FitConnect</em>?<br/>Not the gym.</h1>
+      <p style="color:var(--muted);font-size:1rem;line-height:1.7;max-width:520px;margin:0 auto;">We know the question. Here's the honest answer — and why thousands are choosing a personal trainer at home over a gym membership.</p>
+    </div>
+
+    <div class="why-grid" style="margin-bottom:40px;">
+
+      <div class="why-card">
+        <div class="why-icon">🛡️</div>
+        <h4>No Gym Intimidation</h4>
+        <p>Train in the privacy of your own home or building. No judgement, no crowds, no waiting for equipment — just you and your trainer, fully focused on your goals.</p>
+      </div>
+
+      <div class="why-card">
+        <div class="why-icon">🚗</div>
+        <h4>Skip the Commute</h4>
+        <p>No parking stress, no traffic, no travel time. Your trainer comes directly to you — doorstep fitness that fits a real, busy schedule.</p>
+      </div>
+
+      <div class="why-card">
+        <div class="why-icon">🎒</div>
+        <h4>Equipment Included</h4>
+        <p>Many of our trainers bring their own basic gear — mats, resistance bands, light dumbbells. You don't need to own anything to get started today.</p>
+      </div>
+
+      <div class="why-card">
+        <div class="why-icon">📅</div>
+        <h4>100% Flexible</h4>
+        <p>Book morning, evening, or weekend slots that actually fit your life. Reschedule without penalty. Your trainer works around you — not the gym's timetable.</p>
+      </div>
+
+      <div class="why-card">
+        <div class="why-icon">👩</div>
+        <h4>Female Trainers Available</h4>
+        <p>Comfort and safety matter. We have verified female trainers across NCR, so every client can choose the environment that feels right for them.</p>
+      </div>
+
+      <div class="why-card">
+        <div class="why-icon">🌐</div>
+        <h4>Online or In-Person</h4>
+        <p>Travelling? Working from another city? Many of our trainers offer 1-on-1 video sessions. Train anywhere in the world without losing momentum.</p>
+      </div>
+
+    </div>
+
+    <!-- Trust bar -->
+    <div style="background:var(--card-bg);border:1.5px solid var(--border);border-radius:20px;padding:28px;display:grid;grid-template-columns:repeat(3,1fr);gap:20px;text-align:center;box-shadow:var(--shadow-sm);">
+      <div>
+        <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:2rem;color:var(--accent);letter-spacing:-1px;margin-bottom:4px;">50+</div>
+        <div style="font-size:0.8rem;color:var(--muted);font-weight:500;">Verified Trainers</div>
+      </div>
+      <div>
+        <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:2rem;color:var(--accent);letter-spacing:-1px;margin-bottom:4px;">★ 4.8</div>
+        <div style="font-size:0.8rem;color:var(--muted);font-weight:500;">Average Rating</div>
+      </div>
+      <div>
+        <div style="font-family:'Syne',sans-serif;font-weight:800;font-size:2rem;color:var(--accent);letter-spacing:-1px;margin-bottom:4px;">12+</div>
+        <div style="font-size:0.8rem;color:var(--muted);font-weight:500;">Localities Covered</div>
+      </div>
+    </div>
+
+    <div style="text-align:center;margin-top:32px;">
+      <button onclick="showPage('home')" style="background:var(--accent);color:#fff;border:none;cursor:pointer;font-family:'Syne',sans-serif;font-weight:700;font-size:1rem;padding:15px 36px;border-radius:14px;transition:all 0.2s;box-shadow:0 4px 14px rgba(16,185,129,0.3);" onmouseover="this.style.background='var(--accent-dark)'" onmouseout="this.style.background='var(--accent)'">Browse Trainers →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     ABOUT PAGE
+============================================================ -->
+<div class="page" id="page-about">
+  <div class="about-hero-tag">🤝 Our Story</div>
+  <h1>Fitness that <em>works</em> for your neighbourhood</h1>
+  <p class="about-lead">
+    FitConnect is a community-driven marketplace for on-demand fitness. We verify every trainer so you can skip the guesswork and focus entirely on your workout. No hidden fees, no cold DMs — just straightforward connections between certified trainers and motivated clients in Ghaziabad and Delhi NCR.
+  </p>
+
+  <hr class="about-divider"/>
+
+  <div class="about-how-title">How it Works</div>
+  <p class="about-how-sub">Three simple steps from browsing to your first sweat session.</p>
+
+  <div class="how-steps">
+    <div class="how-step">
+      <div class="how-step-num">1</div>
+      <h4>Browse &amp; Filter</h4>
+      <p>Search by goal, locality, price, gender, or service type. Every trainer profile is fully verified before it goes live on the platform.</p>
+    </div>
+    <div class="how-step">
+      <div class="how-step-num">2</div>
+      <h4>Book via WhatsApp</h4>
+      <p>Tap "Book on WhatsApp" and a message goes straight to our admin. We facilitate the match, confirm availability, and share the payment QR code.</p>
+    </div>
+    <div class="how-step">
+      <div class="how-step-num">3</div>
+      <h4>Train &amp; Track</h4>
+      <p>Show up, sweat, and hit your goals. Your booking history is saved in the app so you can review, reschedule, or rebook in seconds.</p>
+    </div>
+  </div>
+
+  <div class="about-stats">
+    <div class="stat-card"><div class="stat-num">50+</div><div class="stat-label">Verified Trainers</div></div>
+    <div class="stat-card"><div class="stat-num">12+</div><div class="stat-label">Localities Covered</div></div>
+    <div class="stat-card"><div class="stat-num">★ 4.8</div><div class="stat-label">Avg. Trainer Rating</div></div>
+  </div>
+</div>
+
+<!-- ============================================================
+     BOOKINGS PAGE
+============================================================ -->
+<div class="page" id="page-bookings">
+  <div class="page-header">My <span>Bookings</span></div>
+  <div id="bookingsList" class="bookings-list"></div>
+</div>
+
+<!-- ============================================================
+     ONBOARDING / JOIN AS TRAINER PAGE
+============================================================ -->
+<div class="page" id="page-onboard">
+  <div class="onboard-wrap">
+    <div class="onboard-tag">🏋️ For Trainers</div>
+    <h2>Join as a Trainer</h2>
+    <p>List your profile for free and start receiving home-training and online booking requests directly via WhatsApp.</p>
+
+    <div class="step-flow" id="stepFlow">
+      <div class="step active" id="step1"><div class="step-circle">1</div><div class="step-label">Profile</div></div>
+      <div class="step" id="step2"><div class="step-circle">2</div><div class="step-label">Services</div></div>
+      <div class="step" id="step3"><div class="step-circle">3</div><div class="step-label">Done</div></div>
+    </div>
+
+    <div class="form-card" id="onboardForm">
+      <!-- Step 1 -->
+      <div id="formStep1">
+        <div class="form-row">
+          <div class="form-group"><label>Full Name *</label><input type="text" id="trName" placeholder="Rahul Sharma"/></div>
+          <div class="form-group"><label>Phone (WhatsApp) *</label><input type="tel" id="trPhone" placeholder="91XXXXXXXXXX"/></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Gender</label>
+            <select id="trGender"><option>Male</option><option>Female</option><option>Other</option></select>
+          </div>
+          <div class="form-group">
+            <label>City *</label>
+            <input type="text" id="trCity" value="Ghaziabad" readonly style="opacity:0.6;cursor:not-allowed;"/>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Locality / Area *</label>
+          <input type="text" id="trLocality" placeholder="e.g. Indirapuram, Vaishali, Raj Nagar…"/>
+        </div>
+        <div class="form-group">
+          <label>Specialization *</label>
+          <input type="text" id="trSpec" placeholder="Weight Loss, Yoga, CrossFit…"/>
+        </div>
+        <div class="form-group">
+          <label>Profile Photo</label>
+          <div class="photo-upload-box" id="photoUploadBox" onclick="openPhotoWidget()">
+            <div id="photoPreview">
+              <div class="upload-icon">📷</div>
+              <div class="upload-text">Tap to upload photo</div>
+              <div class="upload-hint">JPG or PNG — stored securely on Cloudinary</div>
+            </div>
+          </div>
+          <div class="upload-progress" id="photoProgress"><div class="upload-progress-bar" id="photoProgressBar"></div></div>
+          <div class="upload-status" id="photoStatus"></div>
+        </div>
+
+        <!-- Certifications Upload via Cloudinary -->
+        <div class="form-group">
+          <label>Certifications 🏅</label>
+          <div class="cert-upload-box" id="certUploadBox" onclick="openCertsWidget()">
+            <div id="certPreview">
+              <div class="upload-icon">📄</div>
+              <div class="upload-text">Upload Certificate(s)</div>
+              <div class="upload-hint">PDF, JPG, or PNG — NSCA, ACE, ISSA, Yoga Alliance, etc.</div>
+            </div>
+          </div>
+          <div class="upload-progress" id="certsProgress"><div class="upload-progress-bar" id="certsProgressBar"></div></div>
+          <div class="upload-status" id="certsStatus"></div>
+        </div>
+
+        <button class="submit-btn" onclick="nextStep()">Continue →</button>
+      </div>
+
+      <!-- Step 2 -->
+      <div id="formStep2" style="display:none">
+        <div class="form-row">
+          <div class="form-group"><label>Experience (years) *</label><input type="number" id="trExp" placeholder="3" min="0"/></div>
+          <div class="form-group"><label>Price / Session (₹) *</label><input type="number" id="trPrice" placeholder="800"/></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group"><label>Weekly Price (₹)</label><input type="number" id="trPriceWeekly" placeholder="3000"/></div>
+          <div class="form-group"><label>Monthly Price (₹)</label><input type="number" id="trPriceMonthly" placeholder="10000"/></div>
+        </div>
+        <div class="form-group">
+          <label>Training Goals (comma separated)</label>
+          <input type="text" id="trGoals" placeholder="Weight Loss, Muscle Gain, Flexibility"/>
+        </div>
+        <div class="form-group">
+          <label>Short Bio</label>
+          <textarea id="trBio" placeholder="Tell clients about your approach, certifications, and what makes you different…"></textarea>
+        </div>
+
+        <!-- ✅ NEW: Online Training & Equipment Checkboxes -->
+        <div class="form-group">
+          <label>Service Options</label>
+          <div class="check-group">
+            <div class="check-item" onclick="document.getElementById('trOnlineCheck').click()">
+              <input type="checkbox" id="trOnlineCheck" onclick="event.stopPropagation()"/>
+              <span>🌐 Online Training Available — I offer 1-on-1 video sessions</span>
+            </div>
+            <div class="check-item" onclick="document.getElementById('trBringsEquipment').click()">
+              <input type="checkbox" id="trBringsEquipment" onclick="event.stopPropagation()"/>
+              <span>🎒 I Bring My Own Equipment — mat, bands, dumbbells, etc.</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Equipment I Can Provide -->
+        <div class="form-group">
+          <label>Equipment I Can Provide</label>
+          <div class="check-group">
+            <div class="check-item" onclick="document.getElementById('eqMat').click()">
+              <input type="checkbox" id="eqMat" onclick="event.stopPropagation()"/>
+              <span>🧘 Yoga / Exercise Mat</span>
+            </div>
+            <div class="check-item" onclick="document.getElementById('eqBands').click()">
+              <input type="checkbox" id="eqBands" onclick="event.stopPropagation()"/>
+              <span>🔗 Resistance Bands</span>
+            </div>
+            <div class="check-item" onclick="document.getElementById('eqDumbbells').click()">
+              <input type="checkbox" id="eqDumbbells" onclick="event.stopPropagation()"/>
+              <span>🏋️ Light Dumbbells</span>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-row">
+          <button class="btn-secondary" onclick="prevStep()">← Back</button>
+          <button class="btn-primary" id="submitTrainer" onclick="submitTrainer()">Submit Profile 🚀</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============================================================
+     TRAINER DETAIL MODAL
+============================================================ -->
+<div class="overlay hidden" id="trainerOverlay" onclick="closeModal(event)">
+  <div class="modal" id="trainerModal">
+    <button class="close-btn" onclick="closeOverlay()">✕</button>
+    <div class="modal-handle"></div>
+    <div class="modal-header" id="modalHeader"></div>
+    <div style="padding:0 20px;margin-bottom:12px;" id="modalServicePills"></div>
+    <div class="modal-grid" id="modalGrid"></div>
+    <div class="modal-section" id="modalBio"></div>
+    <div class="booking-panel">
+      <h4>Book a Session</h4>
+      <div class="booking-options" id="bookingOptions"></div>
+      <button class="whatsapp-btn" id="whatsappBtn">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+          <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413Z"/>
+        </svg>
+        Book on WhatsApp
+      </button>
+    </div>
+  </div>
+</div>
+
+
+<script>
+// ============================================================
+// CONFIG — HARDCODED (no setup modal needed)
+// ============================================================
+const SHEET_URL  = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRpg0pyfjPHZpRAeTFNq_hpNivu5FgvtLUQhxbgQQsv6jTC0cQSUA51TYnmmYMS5wwFsgMeQS9vXZGp/pub?output=csv';
+const SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw5Ofr0Jv-2JEPcxrfvlfjw-_7KiFX_3rYIL2BmMTg9q9laFJ9iVeR7tLKbwjvWc1YA/exec';
+const ADMIN_WHATSAPP = '919810971443'; // 🔧 REPLACE WITH YOUR NUMBER
+
+// Cloudinary config
+const CLOUDINARY_CLOUD_NAME   = 'dygfhsffb';
+const CLOUDINARY_UPLOAD_PRESET = 'fitconnect_uploads';
+
+// ============================================================
+// APP STATE
+// ============================================================
+let allTrainers         = [];
+let bookings            = JSON.parse(localStorage.getItem('fitconnect_bookings') || '[]');
+let selectedBookingType = 'session';
+let currentTrainer      = null;
+let onboardStep         = 1;
+let trainerPhotoUrl     = '';   // Cloudinary URL for photo
+let certUrls            = [];   // Array of Cloudinary URLs for certs
+
+// ============================================================
+// THEME TOGGLE — Bright (default) / Dark Midnight
+// ============================================================
+(function initTheme() {
+  const saved = localStorage.getItem('fitconnect_theme');
+  if (saved === 'dark') {
+    document.documentElement.classList.add('dark');
+    document.getElementById('iconSun').style.display = 'block';
+    document.getElementById('iconMoon').style.display = 'none';
+  }
+})();
+
+function toggleTheme() {
+  const isDark = document.documentElement.classList.toggle('dark');
+  document.getElementById('iconSun').style.display  = isDark ? 'block' : 'none';
+  document.getElementById('iconMoon').style.display = isDark ? 'none'  : 'block';
+  localStorage.setItem('fitconnect_theme', isDark ? 'dark' : 'bright');
+}
+
+// ============================================================
+// SAMPLE DATA — includes new fields: OnlineAvailable, EquipmentProvided, isVerified
+// ============================================================
+const sampleTrainers = [
+  {
+    Name:'Arjun Kapoor', Phone:'919876543210', City:'Ghaziabad', Locality:'Indirapuram',
+    Gender:'Male', Specialization:'CrossFit & HIIT',
+    Goals:'Weight Loss,Endurance,Strength', Experience:'5',
+    Price:'900', PriceWeekly:'3500', PriceMonthly:'12000',
+    Bio:'NSCA certified trainer with 5 years of experience helping clients achieve peak fitness through data-driven training plans.',
+    Emoji:'💪', isVerified:'yes', OnlineAvailable:'yes', EquipmentProvided:'Mat,Bands,Dumbbells'
+  },
+  {
+    Name:'Priya Nair', Phone:'919823456789', City:'Ghaziabad', Locality:'Vaishali',
+    Gender:'Female', Specialization:'Yoga & Mindfulness',
+    Goals:'Flexibility,Stress Relief,Weight Loss', Experience:'7',
+    Price:'700', PriceWeekly:'2800', PriceMonthly:'9000',
+    Bio:'500-hour certified yoga instructor specialising in Vinyasa and Yin yoga. I help clients find balance in body and mind.',
+    Emoji:'🧘', isVerified:'yes', OnlineAvailable:'yes', EquipmentProvided:'Mat,Bands'
+  },
+  {
+    Name:'Sameer Khan', Phone:'918765432100', City:'Ghaziabad', Locality:'Raj Nagar',
+    Gender:'Male', Specialization:'Strength & Powerlifting',
+    Goals:'Muscle Gain,Strength,Body Recomposition', Experience:'4',
+    Price:'1100', PriceWeekly:'4200', PriceMonthly:'14000',
+    Bio:'IPF affiliated powerlifting coach. I specialise in building raw strength through progressive overload.',
+    Emoji:'🏋️', isVerified:'', OnlineAvailable:'', EquipmentProvided:'Dumbbells'
+  },
+  {
+    Name:'Divya Menon', Phone:'917654321098', City:'Ghaziabad', Locality:'Kaushambi',
+    Gender:'Female', Specialization:'Nutrition & Fat Loss',
+    Goals:'Weight Loss,Toning,Healthy Lifestyle', Experience:'6',
+    Price:'800', PriceWeekly:'3000', PriceMonthly:'9500',
+    Bio:'Sports nutritionist + personal trainer combo. I help you lose fat sustainably without crash diets.',
+    Emoji:'🥗', isVerified:'yes', OnlineAvailable:'yes', EquipmentProvided:'Mat'
+  },
+  {
+    Name:'Rahul Verma', Phone:'916543210987', City:'Ghaziabad', Locality:'Sanjay Nagar',
+    Gender:'Male', Specialization:'Functional Training',
+    Goals:'Agility,Endurance,Sport Performance', Experience:'3',
+    Price:'650', PriceWeekly:'2500', PriceMonthly:'8000',
+    Bio:'Ex-athlete turned trainer. I train you for real-world performance, not just gym looks.',
+    Emoji:'⚡', isVerified:'', OnlineAvailable:'', EquipmentProvided:''
+  },
+  {
+    Name:'Shreya Joshi', Phone:'915432109876', City:'Ghaziabad', Locality:'Crossings Republik',
+    Gender:'Female', Specialization:'Pilates & Core Training',
+    Goals:'Core Strength,Posture,Rehabilitation', Experience:'5',
+    Price:'850', PriceWeekly:'3200', PriceMonthly:'10500',
+    Bio:'Stott Pilates certified. Specialising in post-injury recovery and core strengthening for all fitness levels.',
+    Emoji:'🤸', isVerified:'yes', OnlineAvailable:'yes', EquipmentProvided:'Mat,Bands'
+  },
+];
+
+// ============================================================
+// PAGE NAVIGATION (SPA)
+// ============================================================
+const pageOrder = ['home', 'why', 'about', 'bookings', 'onboard'];
+
+function showPage(id) {
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + id).classList.add('active');
+  document.querySelectorAll('.tab-btn').forEach((btn, i) => {
+    btn.classList.toggle('active', pageOrder[i] === id);
+  });
+  if (id === 'bookings') renderBookings();
+}
+
+// ============================================================
+// LOAD TRAINERS
+// ============================================================
+async function loadTrainers() {
+  showSkeletons();
+  try {
+    const csvUrl = SHEET_URL.includes('output=csv') ? SHEET_URL : SHEET_URL + (SHEET_URL.includes('?') ? '&' : '?') + 'output=csv';
+    const resp = await fetch(csvUrl + '&t=' + Date.now());
+    const text = await resp.text();
+    const parsed = parseCSV(text);
+    if (parsed.length === 0) throw new Error('Empty sheet');
+    allTrainers = parsed;
+  } catch(e) {
+    allTrainers = sampleTrainers;
+  }
+  populateFilters();
+  renderTrainers();
+}
+
+function showSkeletons() {
+  const skel = `<div class="skeleton-card"><div class="skeleton skeleton-avatar"></div><div class="skeleton-body"><div class="skeleton skeleton-line w-70"></div><div class="skeleton skeleton-line w-50"></div><div class="skeleton-line w-40" style="height:12px;border-radius:6px;background:var(--skeleton-base);background-image:linear-gradient(90deg,var(--skeleton-base) 0px,var(--skeleton-shine) 40px,var(--skeleton-base) 80px);background-size:400px 100%;animation:shimmer 1.4s infinite linear;"></div><div class="skeleton-footer"><div class="skeleton skeleton-price"></div><div class="skeleton skeleton-btn"></div></div></div></div>`;
+  document.getElementById('trainersGrid').innerHTML = skel + skel + skel;
+}
+
+// ============================================================
+// CSV PARSER — robust quoted-field parser, no lookbehind regex
+// ============================================================
+function parseCSVLine(line) {
+  const result = [];
+  let cur = '', inQuotes = false;
+  for (let i = 0; i < line.length; i++) {
+    const ch = line[i];
+    if (ch === '"') {
+      if (inQuotes && line[i + 1] === '"') { cur += '"'; i++; }
+      else inQuotes = !inQuotes;
+    } else if (ch === ',' && !inQuotes) {
+      result.push(cur.trim()); cur = '';
+    } else {
+      cur += ch;
+    }
+  }
+  result.push(cur.trim());
+  return result;
+}
+
+function parseCSV(text) {
+  const lines = text.trim().split(/\r?\n/);
+  if (lines.length < 2) return [];
+  const headers = parseCSVLine(lines[0]).map(h => h.replace(/"/g, '').trim());
+  return lines.slice(1)
+    .filter(line => line.trim())
+    .map(line => {
+      const vals = parseCSVLine(line);
+      const obj = {};
+      headers.forEach((h, i) => { obj[h] = (vals[i] || '').replace(/^"|"$/g, '').trim(); });
+      obj.Emoji = obj.Emoji || ['💪','🧘','🏋️','⚡','🤸','🏃'][Math.floor(Math.random() * 6)];
+      return obj;
+    }).filter(t => t.Name && t.Name.length > 0);
+}
+
+// ============================================================
+// POPULATE FILTERS
+// ============================================================
+function populateFilters() {
+  const localities = [...new Set(allTrainers.map(t => t.Locality || t.City).filter(Boolean))].sort();
+  const goals      = [...new Set(allTrainers.flatMap(t => (t.Goals || '').split(',').map(g => g.trim())).filter(Boolean))].sort();
+  document.getElementById('filterLocality').innerHTML = '<option value="">All Areas</option>' + localities.map(l => `<option value="${l}">${l}</option>`).join('');
+  document.getElementById('filterGoal').innerHTML     = '<option value="">Any Goal</option>' + goals.map(g => `<option>${g}</option>`).join('');
+}
+
+// ============================================================
+// SERVICE HELPERS
+// ============================================================
+function trainerHasService(t, service) {
+  const online    = (t.OnlineAvailable || '').toLowerCase() === 'yes';
+  const equipment = (t.EquipmentProvided || '').trim().length > 0;
+  if (service === 'home')      return true; // all trainers do home training
+  if (service === 'online')    return online;
+  if (service === 'equipment') return equipment;
+  return true;
+}
+
+function buildServicePills(t) {
+  const pills = [];
+  const online         = (t.OnlineAvailable || '').toLowerCase() === 'yes';
+  const equipment      = (t.EquipmentProvided || '').trim();
+  const bringsEquip    = (t.BringsEquipment || '').toLowerCase() === 'yes';
+  pills.push(`<span class="service-pill">🏠 Home</span>`);
+  if (online)       pills.push(`<span class="service-pill">🌐 Online</span>`);
+  if (equipment || bringsEquip) pills.push(`<span class="service-pill">🎒 Brings Equipment</span>`);
+  return pills.join('');
+}
+
+// ============================================================
+// RENDER TRAINERS GRID
+// ============================================================
+function renderTrainers() {
+  const search    = document.getElementById('searchInput').value.toLowerCase().trim();
+  const locality  = document.getElementById('filterLocality').value;
+  const gender    = document.getElementById('filterGender').value;
+  const goal      = document.getElementById('filterGoal').value;
+  const maxPrice  = document.getElementById('filterPrice').value;
+  const service   = document.getElementById('filterService').value;
+
+  document.getElementById('clearSearchBtn').style.display = search ? 'block' : 'none';
+
+  const filtered = allTrainers.filter(t => {
+    if (locality && (t.Locality || t.City) !== locality) return false;
+    if (gender   && t.Gender !== gender)                  return false;
+    if (goal     && !(t.Goals || '').toLowerCase().includes(goal.toLowerCase())) return false;
+    if (maxPrice && parseInt(t.Price) > parseInt(maxPrice)) return false;
+    if (service  && !trainerHasService(t, service))        return false;
+    if (search   && !`${t.Name} ${t.City} ${t.Locality} ${t.Specialization} ${t.Goals}`.toLowerCase().includes(search)) return false;
+    return true;
+  });
+
+  const grid = document.getElementById('trainersGrid');
+
+  if (filtered.length === 0) {
+    grid.innerHTML = `
+      <div class="state-box">
+        <div class="icon">🔍</div>
+        <h3>No trainers found</h3>
+        <p>No trainers match your current filters.<br/>Try broadening your search or clearing the filters.</p>
+        <button class="clear-filters-btn" onclick="clearAllFilters()">✕ Clear All Filters</button>
+      </div>`;
+    return;
+  }
+
+  grid.innerHTML = filtered.map((t, i) => {
+    // ✅ UPDATED: isVerified check supports both field names
+    const isVerified = (t.isVerified || t.verified || '').toLowerCase() === 'yes';
+    const loc = t.Locality || t.City;
+    return `
+      <div class="trainer-card" onclick="openTrainer(${allTrainers.indexOf(t)})" style="animation-delay:${i * 0.05}s">
+        <div class="card-avatar">
+          ${(t.ProfilePhoto || t.PhotoUrl) ? `<img src="${t.ProfilePhoto || t.PhotoUrl}" alt="${t.Name}"/>` : `<span class="avatar-emoji">${t.Emoji || '💪'}</span>`}
+          ${isVerified ? `<div class="verified-badge">
+            <svg width="10" height="10" viewBox="0 0 12 12" fill="none"><path d="M10 3L5 9L2 6" stroke="white" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            Certified &amp; Verified
+          </div>` : ''}
+          <span class="gender-badge">${t.Gender || '—'}</span>
+        </div>
+        <div class="card-body">
+          <div class="card-name">${t.Name}</div>
+          <div class="card-spec">${t.Specialization}</div>
+          <div class="card-meta">
+            <span class="meta-pill">📍 ${loc}</span>
+            <span class="meta-pill">⏱ ${t.Experience}y exp</span>
+            ${t.Goals ? t.Goals.split(',').slice(0,1).map(g => `<span class="meta-pill">🎯 ${g.trim()}</span>`).join('') : ''}
+          </div>
+          <div class="card-services">${buildServicePills(t)}</div>
+          <div class="card-footer">
+            <div class="price">₹${parseInt(t.Price).toLocaleString('en-IN')} <small>/session</small></div>
+            <button class="book-btn" onclick="event.stopPropagation();openTrainer(${allTrainers.indexOf(t)})">Book Now</button>
+          </div>
+        </div>
+      </div>`;
+  }).join('');
+}
+
+// ============================================================
+// FILTER UTILITIES
+// ============================================================
+function clearSearch() {
+  document.getElementById('searchInput').value = '';
+  renderTrainers();
+}
+function clearAllFilters() {
+  document.getElementById('searchInput').value    = '';
+  document.getElementById('filterLocality').value = '';
+  document.getElementById('filterGender').value   = '';
+  document.getElementById('filterGoal').value     = '';
+  document.getElementById('filterPrice').value    = '';
+  document.getElementById('filterService').value  = '';
+  renderTrainers();
+}
+
+// ============================================================
+// TRAINER MODAL
+// ============================================================
+function openTrainer(idx) {
+  currentTrainer      = allTrainers[idx];
+  const t             = currentTrainer;
+  selectedBookingType = 'session';
+  const isVerified    = (t.isVerified || t.verified || '').toLowerCase() === 'yes';
+  const online        = (t.OnlineAvailable || '').toLowerCase() === 'yes';
+  const equipment     = (t.EquipmentProvided || '').trim();
+  const bringsEquip   = (t.BringsEquipment || '').toLowerCase() === 'yes';
+  const photoSrc      = t.ProfilePhoto || t.PhotoUrl || '';
+
+  document.getElementById('modalHeader').innerHTML = `
+    <div class="modal-avatar">
+      ${photoSrc ? `<img src="${photoSrc}" style="width:100%;height:100%;object-fit:cover;" alt="${t.Name}"/>` : (t.Emoji || '💪')}
+    </div>
+    <div class="modal-name">
+      ${t.Name}
+      ${isVerified ? `<span style="display:inline-flex;align-items:center;gap:4px;background:var(--blue);color:#fff;font-size:0.65rem;font-weight:700;padding:2px 8px;border-radius:50px;vertical-align:middle;letter-spacing:0.2px;">
+        <svg width="9" height="9" viewBox="0 0 12 12" fill="none"><path d="M10 3L5 9L2 6" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>Certified &amp; Verified</span>` : ''}
+    </div>
+    <div class="modal-spec">${t.Specialization}</div>`;
+
+  // Service pills in modal
+  const pillsHtml = [
+    `<span class="service-pill">🏠 Home Training</span>`,
+    online              ? `<span class="service-pill">🌐 Online Sessions</span>`  : '',
+    (equipment || bringsEquip) ? `<span class="service-pill">🎒 Brings Equipment</span>` : '',
+    t.Certificates      ? `<span class="service-pill">📄 Certified</span>`        : '',
+  ].filter(Boolean).join('');
+  document.getElementById('modalServicePills').innerHTML = `<div style="display:flex;gap:6px;flex-wrap:wrap;">${pillsHtml}</div>`;
+
+  document.getElementById('modalGrid').innerHTML = `
+    <div class="info-tile"><div class="label">📍 Area</div><div class="val">${t.Locality || t.City}</div></div>
+    <div class="info-tile"><div class="label">⏱ Experience</div><div class="val">${t.Experience} years</div></div>
+    <div class="info-tile"><div class="label">⚧ Gender</div><div class="val">${t.Gender}</div></div>
+    <div class="info-tile"><div class="label">🎯 Goals</div><div class="val" style="font-size:0.8rem">${(t.Goals || '').split(',').slice(0,2).join(', ')}</div></div>`;
+
+  document.getElementById('modalBio').innerHTML = t.Bio ? `<h4>About</h4><p>${t.Bio}</p>` : '';
+
+  renderBookingOptions(t);
+  document.getElementById('trainerOverlay').classList.remove('hidden');
+  document.body.style.overflow = 'hidden';
+}
+
+// ============================================================
+// BOOKING OPTIONS & WHATSAPP BUTTON
+// ============================================================
+function renderBookingOptions(t) {
+  const opts = [
+    { id: 'session', icon: '1️⃣', label: '1 Session',  price: `₹${parseInt(t.Price || 0).toLocaleString('en-IN')}` },
+    { id: 'weekly',  icon: '📅', label: 'Weekly',     price: t.PriceWeekly  ? `₹${parseInt(t.PriceWeekly).toLocaleString('en-IN')}`  : 'Ask trainer' },
+    { id: 'monthly', icon: '🗓️', label: 'Monthly',    price: t.PriceMonthly ? `₹${parseInt(t.PriceMonthly).toLocaleString('en-IN')}` : 'Ask trainer' },
+  ];
+  document.getElementById('bookingOptions').innerHTML = opts.map(o => `
+    <div class="booking-opt ${o.id === selectedBookingType ? 'selected' : ''}" onclick="selectBooking('${o.id}')">
+      <div class="opt-icon">${o.icon}</div>
+      <div class="opt-label">${o.label}</div>
+      <div class="opt-price">${o.price}</div>
+    </div>`).join('');
+
+  const priceMap = {
+    session: `₹${parseInt(t.Price || 0).toLocaleString('en-IN')}`,
+    weekly:  t.PriceWeekly  ? `₹${parseInt(t.PriceWeekly).toLocaleString('en-IN')}`  : 'Ask trainer',
+    monthly: t.PriceMonthly ? `₹${parseInt(t.PriceMonthly).toLocaleString('en-IN')}` : 'Ask trainer',
+  };
+  const typeLabel = { session: '1 Session', weekly: 'Weekly Package', monthly: 'Monthly Package' };
+  const online    = (t.OnlineAvailable || '').toLowerCase() === 'yes';
+  const equipment = (t.EquipmentProvided || '').trim();
+
+  const message = `Hi FitConnect! I want to book a session.\n\nTrainer: ${t.Name}\nSpecialization: ${t.Specialization}\nBooking Type: ${typeLabel[selectedBookingType]}\nPrice: ${priceMap[selectedBookingType]}\nArea: ${t.Locality || t.City}${online ? '\nOnline Session: Available ✅' : ''}${equipment ? '\nEquipment: ' + equipment : ''}\n\nPlease share the QR code for payment. 🙏`;
+
+  document.getElementById('whatsappBtn').onclick = () => {
+    saveBooking(t, selectedBookingType);
+    window.open(`https://wa.me/${ADMIN_WHATSAPP}?text=${encodeURIComponent(message)}`, '_blank');
+  };
+}
+
+function selectBooking(type) {
+  selectedBookingType = type;
+  renderBookingOptions(currentTrainer);
+}
+
+function closeModal(e) { if (e.target === document.getElementById('trainerOverlay')) closeOverlay(); }
+function closeOverlay() {
+  document.getElementById('trainerOverlay').classList.add('hidden');
+  document.body.style.overflow = '';
+}
+
+// ============================================================
+// BOOKINGS
+// ============================================================
+function saveBooking(trainer, type) {
+  bookings.unshift({
+    id: Date.now(), trainerName: trainer.Name, trainerSpec: trainer.Specialization,
+    emoji: trainer.Emoji || '💪', type,
+    time: new Date().toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }),
+    status: 'Pending'
+  });
+  localStorage.setItem('fitconnect_bookings', JSON.stringify(bookings));
+}
+function updateBooking(idx, status) {
+  bookings[idx].status = status;
+  localStorage.setItem('fitconnect_bookings', JSON.stringify(bookings));
+  renderBookings();
+}
+function renderBookings() {
+  const el = document.getElementById('bookingsList');
+  if (bookings.length === 0) {
+    el.innerHTML = `<div class="empty-bookings"><div class="big-icon">📋</div><h3>No bookings yet</h3><p>When you tap "Book on WhatsApp", your bookings will appear here for your reference.</p></div>`;
+    return;
+  }
+  el.innerHTML = bookings.map((b, i) => `
+    <div class="booking-card">
+      <div class="booking-avi">${b.emoji}</div>
+      <div class="booking-info">
+        <div class="booking-name">${b.trainerName}</div>
+        <span class="booking-type type-${b.type}">${b.type === 'session' ? '1 Session' : b.type === 'weekly' ? 'Weekly' : 'Monthly'}</span>
+        <div class="booking-time">📅 ${b.time}</div>
+      </div>
+      <div class="booking-actions">
+        ${b.status === 'Pending' ? `
+          <button class="status-btn confirm-btn" onclick="updateBooking(${i},'Confirmed')">✓ Confirm</button>
+          <button class="status-btn reject-btn" onclick="updateBooking(${i},'Rejected')">✕ Reject</button>
+        ` : `<div class="booking-status status-${b.status}">${b.status === 'Confirmed' ? '✓ Confirmed' : '✕ Rejected'}</div>`}
+      </div>
+    </div>`).join('');
+}
+
+// ============================================================
+// CLOUDINARY UPLOAD WIDGETS
+// ============================================================
+function openPhotoWidget() {
+  if (typeof cloudinary === 'undefined') {
+    alert('Cloudinary widget is loading, please try again in a moment.');
+    return;
+  }
+  const widget = cloudinary.createUploadWidget({
+    cloudName: CLOUDINARY_CLOUD_NAME,
+    uploadPreset: CLOUDINARY_UPLOAD_PRESET,
+    sources: ['local', 'camera'],
+    multiple: false,
+    resourceType: 'image',
+    clientAllowedFormats: ['jpg', 'jpeg', 'png', 'webp'],
+    maxFileSize: 5000000,
+    cropping: true,
+    croppingAspectRatio: 1,
+    croppingShowDimensions: true,
+    showPoweredBy: false,
+    styles: {
+      palette: {
+        window: '#1E293B',
+        windowBorder: '#334155',
+        tabIcon: '#10B981',
+        menuIcons: '#94A3B8',
+        textDark: '#000000',
+        textLight: '#F1F5F9',
+        link: '#10B981',
+        action: '#10B981',
+        inactiveTabIcon: '#64748B',
+        error: '#EF4444',
+        inProgress: '#10B981',
+        complete: '#10B981',
+        sourceBg: '#263548'
+      }
+    }
+  }, (error, result) => {
+    if (error) { console.error('Photo upload error:', error); return; }
+    if (result.event === 'upload-added') {
+      document.getElementById('photoProgress').style.display = 'block';
+      document.getElementById('photoStatus').style.display = 'block';
+      document.getElementById('photoStatus').textContent = 'Uploading…';
+    }
+    if (result.event === 'progress') {
+      document.getElementById('photoProgressBar').style.width = result.info.progress + '%';
+    }
+    if (result.event === 'success') {
+      trainerPhotoUrl = result.info.secure_url;
+      document.getElementById('photoProgress').style.display = 'none';
+      document.getElementById('photoStatus').textContent = '✅ Photo uploaded!';
+      document.getElementById('photoPreview').innerHTML = `
+        <img src="${trainerPhotoUrl}" alt="Preview" style="width:80px;height:80px;border-radius:50%;object-fit:cover;border:3px solid var(--accent);margin-bottom:8px;"/>
+        <div style="font-size:0.75rem;color:var(--muted);">Tap to change</div>`;
+    }
+  });
+  widget.open();
+}
+
+function openCertsWidget() {
+  if (typeof cloudinary === 'undefined') {
+    alert('Cloudinary widget is loading, please try again in a moment.');
+    return;
+  }
+  const widget = cloudinary.createUploadWidget({
+    cloudName: CLOUDINARY_CLOUD_NAME,
+    uploadPreset: CLOUDINARY_UPLOAD_PRESET,
+    sources: ['local'],
+    multiple: true,
+    resourceType: 'auto',
+    clientAllowedFormats: ['jpg', 'jpeg', 'png', 'pdf'],
+    maxFileSize: 10000000,
+    showPoweredBy: false,
+    styles: {
+      palette: {
+        window: '#1E293B',
+        windowBorder: '#334155',
+        tabIcon: '#10B981',
+        menuIcons: '#94A3B8',
+        textDark: '#000000',
+        textLight: '#F1F5F9',
+        link: '#10B981',
+        action: '#10B981',
+        inactiveTabIcon: '#64748B',
+        error: '#EF4444',
+        inProgress: '#10B981',
+        complete: '#10B981',
+        sourceBg: '#263548'
+      }
+    }
+  }, (error, result) => {
+    if (error) { console.error('Cert upload error:', error); return; }
+    if (result.event === 'upload-added') {
+      document.getElementById('certsProgress').style.display = 'block';
+      document.getElementById('certsStatus').style.display = 'block';
+      document.getElementById('certsStatus').textContent = 'Uploading…';
+    }
+    if (result.event === 'progress') {
+      document.getElementById('certsProgressBar').style.width = result.info.progress + '%';
+    }
+    if (result.event === 'success') {
+      certUrls.push(result.info.secure_url);
+      document.getElementById('certsProgress').style.display = 'none';
+      document.getElementById('certsStatus').textContent = `✅ ${certUrls.length} certificate(s) uploaded`;
+      document.getElementById('certPreview').innerHTML = `
+        <div class="upload-icon">✅</div>
+        <div class="upload-text" style="color:var(--accent-dark);">${certUrls.length} certificate(s) uploaded</div>
+        <div class="upload-hint">Tap to add more</div>`;
+    }
+  });
+  widget.open();
+}
+
+function nextStep() {
+  const name = document.getElementById('trName').value.trim();
+  const phone = document.getElementById('trPhone').value.trim();
+  const city  = document.getElementById('trCity').value.trim();
+  const loc   = document.getElementById('trLocality').value.trim();
+  const spec  = document.getElementById('trSpec').value.trim();
+  if (!name || !phone || !city || !loc || !spec) {
+    alert('Please fill all required fields marked with *');
+    return;
+  }
+  document.getElementById('formStep1').style.display = 'none';
+  document.getElementById('formStep2').style.display = 'block';
+  document.getElementById('step1').classList.remove('active');
+  document.getElementById('step1').classList.add('done');
+  document.getElementById('step2').classList.add('active');
+  onboardStep = 2;
+}
+function prevStep() {
+  document.getElementById('formStep2').style.display = 'none';
+  document.getElementById('formStep1').style.display = 'block';
+  document.getElementById('step1').classList.add('active');
+  document.getElementById('step1').classList.remove('done');
+  document.getElementById('step2').classList.remove('active');
+  onboardStep = 1;
+}
+
+async function submitTrainer() {
+  const exp   = document.getElementById('trExp').value.trim();
+  const price = document.getElementById('trPrice').value.trim();
+  if (!exp || !price) { alert('Please fill required fields'); return; }
+
+  const btn = document.getElementById('submitTrainer');
+  btn.disabled = true; btn.textContent = 'Submitting…';
+
+  // Collect equipment checkboxes
+  const equipment = [];
+  if (document.getElementById('eqMat').checked)       equipment.push('Mat');
+  if (document.getElementById('eqBands').checked)     equipment.push('Bands');
+  if (document.getElementById('eqDumbbells').checked) equipment.push('Dumbbells');
+
+  // New checkboxes
+  const onlineAvailable  = document.getElementById('trOnlineCheck').checked ? 'yes' : 'no';
+  const bringsEquipment  = document.getElementById('trBringsEquipment').checked ? 'yes' : 'no';
+
+  const data = {
+    Name:              document.getElementById('trName').value.trim(),
+    Phone:             document.getElementById('trPhone').value.trim(),
+    City:              document.getElementById('trCity').value.trim(),
+    Locality:          document.getElementById('trLocality').value.trim(),
+    Gender:            document.getElementById('trGender').value,
+    Specialization:    document.getElementById('trSpec').value.trim(),
+    Goals:             document.getElementById('trGoals').value.trim(),
+    Experience:        exp,
+    Price:             price,
+    PriceWeekly:       document.getElementById('trPriceWeekly').value.trim(),
+    PriceMonthly:      document.getElementById('trPriceMonthly').value.trim(),
+    Bio:               document.getElementById('trBio').value.trim(),
+    EquipmentProvided: equipment.join(','),
+    OnlineAvailable:   onlineAvailable,
+    BringsEquipment:   bringsEquipment,
+    ProfilePhoto:      trainerPhotoUrl,
+    Certificates:      certUrls.join(', '),
+    Emoji:             ['💪','🧘','🏋️','⚡','🤸','🏃'][Math.floor(Math.random() * 6)],
+    PhotoUrl:          trainerPhotoUrl,
+    Timestamp:         new Date().toISOString()
+  };
+
+  try {
+    await fetch(SCRIPT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) });
+  } catch(e) {}
+
+  document.getElementById('step2').classList.remove('active');
+  document.getElementById('step2').classList.add('done');
+  document.getElementById('step3').classList.add('active');
+  document.getElementById('onboardForm').innerHTML = `
+    <div class="success-box">
+      <div class="big">🎉</div>
+      <h3>Profile Submitted!</h3>
+      <p>Welcome aboard, ${data.Name}!<br/>Your profile will appear in the app once the sheet refreshes.<br/><br/><strong>Next:</strong> Check your WhatsApp for booking requests from FitConnect admin.</p>
+    </div>`;
+}
+
+// ============================================================
+// INIT
+// ============================================================
+loadTrainers();
+</script>
+</body>
+</html>
