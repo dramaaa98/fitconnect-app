@@ -634,15 +634,20 @@
   /* Checkbox & Toggle styles */
   .check-group { display: flex; flex-direction: column; gap: 10px; }
   .check-item {
-    display: flex; align-items: center; gap: 10px;
     background: var(--surface2); border: 1.5px solid var(--border);
-    border-radius: 10px; padding: 10px 14px; cursor: pointer;
+    border-radius: 10px; padding: 0;
     transition: border-color 0.2s, background 0.2s;
-    user-select: none;
   }
   .check-item:hover { border-color: var(--accent); }
-  .check-item input[type="checkbox"] { width: 17px; height: 17px; accent-color: var(--accent); cursor: pointer; flex-shrink: 0; pointer-events: none; }
-  .check-item span { font-size: 0.85rem; font-weight: 500; color: var(--text); }
+  .check-item label {
+    display: flex !important; align-items: center; gap: 10px;
+    padding: 10px 14px; cursor: pointer; width: 100%;
+    font-size: 0.85rem !important; font-weight: 500 !important;
+    color: var(--text) !important; text-transform: none !important;
+    letter-spacing: normal !important; margin: 0 !important;
+    user-select: none;
+  }
+  .check-item input[type="checkbox"] { width: 17px; height: 17px; accent-color: var(--accent); cursor: pointer; flex-shrink: 0; }
 
   /* Online toggle */
   .toggle-row {
@@ -1083,13 +1088,11 @@
         <div class="form-group">
           <label>Service Options</label>
           <div class="check-group">
-            <div class="check-item" onclick="document.getElementById('trOnlineCheck').click()">
-              <input type="checkbox" id="trOnlineCheck" onclick="event.stopPropagation()"/>
-              <span>🌐 Online Training Available — I offer 1-on-1 video sessions</span>
+            <div class="check-item">
+              <label><input type="checkbox" id="trOnlineCheck"/><span>🌐 Online Training Available — I offer 1-on-1 video sessions</span></label>
             </div>
-            <div class="check-item" onclick="document.getElementById('trBringsEquipment').click()">
-              <input type="checkbox" id="trBringsEquipment" onclick="event.stopPropagation()"/>
-              <span>🎒 I Bring My Own Equipment — mat, bands, dumbbells, etc.</span>
+            <div class="check-item">
+              <label><input type="checkbox" id="trBringsEquipment"/><span>🎒 I Bring My Own Equipment — mat, bands, dumbbells, etc.</span></label>
             </div>
           </div>
         </div>
@@ -1098,17 +1101,14 @@
         <div class="form-group">
           <label>Equipment I Can Provide</label>
           <div class="check-group">
-            <div class="check-item" onclick="document.getElementById('eqMat').click()">
-              <input type="checkbox" id="eqMat" onclick="event.stopPropagation()"/>
-              <span>🧘 Yoga / Exercise Mat</span>
+            <div class="check-item">
+              <label><input type="checkbox" id="eqMat"/><span>🧘 Yoga / Exercise Mat</span></label>
             </div>
-            <div class="check-item" onclick="document.getElementById('eqBands').click()">
-              <input type="checkbox" id="eqBands" onclick="event.stopPropagation()"/>
-              <span>🔗 Resistance Bands</span>
+            <div class="check-item">
+              <label><input type="checkbox" id="eqBands"/><span>🔗 Resistance Bands</span></label>
             </div>
-            <div class="check-item" onclick="document.getElementById('eqDumbbells').click()">
-              <input type="checkbox" id="eqDumbbells" onclick="event.stopPropagation()"/>
-              <span>🏋️ Light Dumbbells</span>
+            <div class="check-item">
+              <label><input type="checkbox" id="eqDumbbells"/><span>🏋️ Light Dumbbells</span></label>
             </div>
           </div>
         </div>
